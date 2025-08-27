@@ -7,6 +7,27 @@
     <title>MMU PATHWAY MAP</title>
 </head>
 <body>
-    <h1>Welcome to MMU PATHWAY MAP!</h1>
+    <header>
+        <h1>Welcome to MMU PATHWAY MAP!</h1>
+    </header>
+    <nav class="navbar">
+        <a href="#">Home</a>
+        <a href="#">Map</a>
+        <a href="#">Chat</a>
+        <a href="#">About</a>
+        <button id="moreBtn">More</button>
+    </nav>
+    <div id="moreMenu" class="more-menu">
+        <a href="#">Contact</a>
+        <a href="#">FAQ</a>
+        <a href="#">Support</a>
+    </div>
+    <script>
+        const moreBtn = document.getElementById('moreBtn');
+        const moreMenu = document.getElementById('moreMenu');
+        moreBtn.onclick = function() {
+            moreMenu.classList.toggle('show');
+        };
+    </script>
 </body>
 </html>

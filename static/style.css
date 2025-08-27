@@ -9,7 +9,10 @@ header {
     background: #35424a;
     color: #ffffff;
     padding: 10px 0;
-    text-align: center;
+    text-align: center; /* This centers the header text */
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 h1 {
@@ -30,4 +33,73 @@ footer {
     position: relative;
     bottom: 0;
     width: 100%;
+}
+
+.navbar {
+    background: #222;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    padding: 10px 0;
+}
+
+.navbar a {
+    color: #fff;
+    text-decoration: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    transition: background 0.2s;
+}
+
+.navbar a:hover {
+    background: #35424a;
+}
+
+.navbar button {
+    background: #35424a;
+    color: #fff;
+    border: none;
+    padding: 8px 16px;
+    margin-left: 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.navbar button:hover {
+    background: #222;
+}
+
+.more-menu {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    background: #222;
+    padding: 10px 0;
+    position: absolute;
+    top: 60px; /* Adjust based on navbar height */
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 100;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+.more-menu.show {
+    display: flex;
+}
+
+.more-menu a {
+    color: #fff;
+    text-decoration: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    transition: background 0.2s;
+    width: 100%;
+    text-align: center;
+}
+
+.more-menu a:hover {
+    background: #35424a;
 }
