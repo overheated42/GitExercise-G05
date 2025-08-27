@@ -8,26 +8,27 @@
 </head>
 <body>
     <header>
-        <h1>Welcome to MMU PATHWAY MAP!</h1>
+        <h1>MMU PATHWAY MAP</h1>
     </header>
+
     <nav class="navbar">
-        <a href="#">Home</a>
-        <a href="#">Map</a>
-        <a href="#">Chat</a>
-        <a href="#">About</a>
-        <button id="moreBtn">More</button>
+        <div class="nav-links">
+            <a href="#">Home</a>
+            <a href="#">Map</a>
+            <a href="#">Chat</a>
+            <a href="#">About</a>
+
+            <!-- More Dropdown -->
+            <div class="dropdown">
+                <label for="more-toggle" class="more-label">More ▼</label>
+                <input type="checkbox" id="more-toggle" class="more-toggle" hidden>
+                <div class="more-menu">
+                    <a href="#">Contact</a>
+                    <a href="#">FAQ</a>
+                    <a href="#">Support</a>
+                </div>
+            </div>
+        </div>
     </nav>
-    <div id="moreMenu" class="more-menu">
-        <a href="#">Contact</a>
-        <a href="#">FAQ</a>
-        <a href="#">Support</a>
-    </div>
-    <script>
-        const moreBtn = document.getElementById('moreBtn');
-        const moreMenu = document.getElementById('moreMenu');
-        moreBtn.onclick = function() {
-            moreMenu.classList.toggle('show');
-        };
-    </script>
 </body>
 </html>
