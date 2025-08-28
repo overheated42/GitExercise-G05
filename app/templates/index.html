@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>MMU PATHWAY MAP</title>
+</head>
+<body>
+    <header>
+        <h1>MMU PATHWAY MAP</h1>
+    </header>
+
+    <nav class="navbar">
+        <div class="nav-links">
+            <a href="#">Home</a>
+            <a href="#">Map</a>
+            <a href="#">Chat</a>
+            <a href="#">About</a>
+
+            <!-- More Dropdown -->
+            <div class="dropdown">
+                <label for="more-toggle" class="more-label">More ▼</label>
+                <input type="checkbox" id="more-toggle" class="more-toggle" hidden>
+                <div class="more-menu">
+                    <a href="#">Contact</a>
+                    <a href="#">FAQ</a>
+                    <a href="#">Support</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+</body>
+</html>
