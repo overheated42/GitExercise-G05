@@ -1,0 +1,41 @@
+* [33mb41d5a5[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mchunhui[m[33m, [m[1;31morigin/chunhui[m[33m)[m doing the layout, made some changes to the nav bar added an animatin for dropdown bar
+* [33mbc40104[m Made the header in the middle but we can edit what the header wrote and added some navigation links
+* [33m6734dbb[m changes a little
+*   [33m06558df[m Merge remote-tracking branch 'origin/main' into chunhui
+[32m|[m[33m\[m  
+[32m|[m *   [33m4ab4bce[m[33m ([m[1;31morigin/slay[m[33m, [m[1;31morigin/manveet[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/Map[m[33m, [m[1;31morigin/HEAD[m[33m)[m fixmerge
+[32m|[m [34m|[m[35m\[m  
+[32m|[m [34m|[m * [33mae30854[m Youtube
+[32m|[m [34m|[m *   [33m1d46a97[m Merge branch 'slay' into at-home
+[32m|[m [34m|[m [36m|[m[1;31m\[m  
+[32m|[m [34m|[m * [1;31m|[m [33mb4ae0ac[m forgot to add and com
+[32m|[m * [1;31m|[m [1;31m|[m [33mde02fc8[m insta
+[32m|[m [1;31m|[m [1;31m|[m[1;31m/[m  
+[32m|[m [1;31m|[m[1;31m/[m[1;31m|[m   
+[32m|[m * [1;31m|[m [33m6893eb9[m bath
+[32m|[m * [1;31m|[m [33me8f3036[m Merge branch 'at-home' into slay
+[32m|[m [1;32m|[m[1;31m\[m[1;31m|[m 
+[32m|[m [1;32m|[m *   [33m790d73b[m Merge branch 'slay' into at-home
+[32m|[m [1;32m|[m [1;34m|[m[1;35m\[m  
+[32m|[m [1;32m|[m * [1;35m|[m [33m2e02874[m changed lines
+[32m|[m [1;32m|[m * [1;35m|[m   [33m5ab40ea[m trying again
+[32m|[m [1;32m|[m [1;36m|[m[31m\[m [1;35m\[m  
+[32m|[m [1;32m|[m * [31m\[m [1;35m\[m   [33m5c2dc3d[m merge
+[32m|[m [1;32m|[m [32m|[m[33m\[m [31m\[m [1;35m\[m  
+[32m|[m [1;32m|[m * [33m|[m [31m|[m [1;35m|[m [33md5a12de[m i add somthing
+[32m|[m * [33m|[m [33m|[m [31m|[m [1;35m|[m [33mb2c071a[m youtube
+[32m|[m * [33m|[m [33m|[m [31m|[m [1;35m|[m [33m48c3b74[m insta
+[32m|[m [1;35m|[m [33m|[m[1;35m_[m[33m|[m[1;35m_[m[31m|[m[1;35m/[m  
+[32m|[m [1;35m|[m[1;35m/[m[33m|[m [33m|[m [31m|[m   
+[32m|[m * [33m|[m [33m|[m [31m|[m [33m45b6f11[m delete line
+[32m|[m [31m|[m [33m|[m[31m_[m[33m|[m[31m/[m  
+[32m|[m [31m|[m[31m/[m[33m|[m [33m|[m   
+[32m|[m * [33m|[m [33m|[m [33ma1fbfb8[m i saved again
+[32m|[m [33m|[m [33m|[m[33m/[m  
+[32m|[m [33m|[m[33m/[m[33m|[m   
+[32m|[m * [33m|[m [33mbec200f[m added something
+[32m|[m [33m|[m[33m/[m  
+[32m|[m * [33m841e618[m i add another line
+[32m|[m * [33mf3e77f3[m Initialise repository.
+* [33m694b39e[m changes
+* [33m19eeb74[m[33m ([m[1;32mmain[m[33m)[m hi girls, i made some changes to the Flask app, u guys dont need to create app.py edy, i already did so yeah bye bitch
