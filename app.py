@@ -29,8 +29,8 @@ def load_user(user_id):
 # Home (protected)
 @app.route('/')
 @login_required
-def index():
-    return render_template("index.html", name=current_user.name)
+def home():
+    return render_template("home.html", name=current_user.name)
 
 # Register
 @app.route('/register', methods=['GET', 'POST'])
@@ -79,7 +79,7 @@ def login():
         if user and check_password_hash(user.password, password):
             login_user(user, remember=remember)
             flash("Login successful!", "success")
-            return redirect(url_for("index"))
+            return redirect(url_for("home"))
         else:
             flash("Invalid username or password", "danger")
 
