@@ -30,7 +30,7 @@ def load_user(user_id):
 @app.route('/')
 @login_required
 def home():
-    return render_template("home.html", name=current_user.name)
+    return render_template("index.html", name=current_user.name)
 
 # Register
 @app.route('/register', methods=['GET', 'POST'])
