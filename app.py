@@ -78,7 +78,6 @@ def login():
 
         if user and check_password_hash(user.password, password):
             login_user(user, remember=remember)
-            login_user(user)
             flash("Login successful!", "success")
             return redirect(url_for("home"))
         else:
