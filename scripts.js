@@ -22,3 +22,14 @@ map.setMaxZoom(19);   // limit zoom in
 L.marker([2.927953649184701, 101.64216861623053]).addTo(map)
   .bindPopup("Campus Center")
   .openPopup();
+
+  fetch('campus_paths.geojson')
+  .then(response => response.json())
+  .then(data => {
+    L.geoJSON(data, {
+      style: {
+        color: "blue",
+        weight: 4
+      }
+    }).addTo(map);
+  });
