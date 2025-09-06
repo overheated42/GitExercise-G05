@@ -17,13 +17,40 @@ map.setMaxBounds(bounds);
 map.setMinZoom(16);   // stop zooming too far out
 map.setMaxZoom(19);   // limit zoom in
 
-// Dashed path
-var path = L.polyline([
-  [2.928260982179367, 101.64158677651704],
-  [2.928171748808012, 101.64181511549168],
-  [2.927864389363691, 101.6419210118276]
-], {
-  color: '#ff9999',
-  weight: 1,
-  dashArray: "5,5"
-}).addTo(map);
+fetch("campus_paths.geojson")
+  .then(response => response.json())
+  .then(data => {
+    L.geoJSON(data, {
+      style: {
+        color: "#ff6666",   // lighter red
+        weight: 1.5,
+        dashArray: "2,8" // dashed line
+      }
+    }).addTo(map);
+  });
+
+// Marker for user's location
+let userMarker;
+
+function onLocationFound(e) {
+    const radius = e.accuracy;
+
+    if (!userMarker) {
+        userMarker = L.marker(e.latlng).addTo(map)
+            .bindPopup("You are here")
+            .openPopup();
+        L.circle(e.latlng, radius, { color: 'blue', fillOpacity: 0.1 }).addTo(map);
+    } else {
+        userMarker.setLatLng(e.latlng);
+    }
+}
+
+function onLocationError(e) {
+    alert("Unable to retrieve your location. Please allow location access.");
+}
+
+map.on('locationfound', onLocationFound);
+map.on('locationerror', onLocationError);
+
+// Start tracking user's location
+map.locate({ setView: true, watch: true, maxZoom: 18 });
