@@ -2,12 +2,24 @@ from flask import Flask, render_template, redirect, url_for, request, flash
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin, login_user, LoginManager, login_required, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
+from itsdangerous import URLSafeTimedSerializer
+from flask_mail import Mail, Message
 
 # Flask app and database 
 app = Flask(__name__, template_folder="app/templates", static_folder="app/static")
 app.config['SECRET_KEY'] = 'yoursecretkey'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USERNAME'] = 'your_email@gmail.com'
+app.config['MAIL_PASSWORD'] = 'your_password'
 db = SQLAlchemy(app)
+mail = Mail(app)
+
+#Token serialiser
+serializer = URLSafeTimedSerializer(app.config['SECRET_KEY'])
+
 
 # Flask-Login setup
 login_manager = LoginManager()
@@ -118,6 +130,57 @@ def change_password():
         return redirect(url_for('blah')) # not yet decided where to redirect
 
     return render_template("change_password.html")
+
+# Forgot password route
+@app.route('/forgot_password', methods=['GET', 'POST'])
+def forgot_password():
+    if request.method == 'POST':
+        email = request.form.get('email')
+        user = User.query.filter_by(email=email).first()
+        if user:
+            # Create reset token
+            token = serializer.dumps(user.email, salt='password-reset-salt')
+            reset_url = url_for('reset_password', token=token, _external=True)
+
+            # Send email (or print for testing)
+            msg = Message("Password Reset Request",
+                          sender="your_email@gmail.com",
+                          recipients=[user.email])
+            msg.body = f"Click the link to reset your password: {reset_url}"
+            mail.send(msg)
+
+            flash("A reset link has been sent to your email.", "info")
+            return redirect(url_for('login'))
+        else:
+            flash("Email not found.", "danger")
+
+    return render_template("forgot_password.html")
+
+# Reset password route
+@app.route('/reset_password/<token>', methods=['GET', 'POST'])
+def reset_password(token):
+    try:
+        email = serializer.loads(token, salt='password-reset-salt', max_age=3600)  # 1 hour expiry
+    except:
+        flash("The reset link is invalid or expired.", "danger")
+        return redirect(url_for('forgot_password'))
+
+    user = User.query.filter_by(email=email).first()
+    if request.method == 'POST':
+        new_pw = request.form.get('new_password')
+        confirm_pw = request.form.get('confirm_password')
+
+        if new_pw != confirm_pw:
+            flash("Passwords do not match.", "danger")
+            return redirect(request.url)
+
+        user.password = generate_password_hash(new_pw, method='sha256')
+        db.session.commit()
+
+        flash("Your password has been reset. Please login.", "success")
+        return redirect(url_for('login'))
+
+    return render_template("reset_password.html", token=token)
 
 if __name__ == "__main__":
     with app.app_context():
