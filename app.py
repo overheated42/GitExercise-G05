@@ -4,7 +4,7 @@ from flask_login import UserMixin, login_user, LoginManager, login_required, log
 from werkzeug.security import generate_password_hash, check_password_hash
 
 # Flask app and database 
-app = Flask(__name__, template_folder="app/templates")
+app = Flask(__name__, template_folder="app/templates", static_folder="app/static")
 app.config['SECRET_KEY'] = 'yoursecretkey'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 db = SQLAlchemy(app)
@@ -92,6 +92,32 @@ def logout():
     logout_user()
     flash("You have been logged out.", "info")
     return redirect(url_for("login"))
+
+# Change password 
+def change_password():
+    if request.method == 'POST':
+        current_pw = request.form.get('current_password')
+        new_pw = request.form.get('new_password')
+        confirm_pw = request.form.get('confirm_password')
+
+        # 1. Check old password
+        if not check_password_hash(current_user.password, current_pw):
+            flash("Current password is incorrect.", "danger")
+            return redirect(url_for('change_password'))
+
+        # 2. Check new passwords match
+        if new_pw != confirm_pw:
+            flash("New passwords do not match.", "danger")
+            return redirect(url_for('change_password'))
+
+        # 3. Update password
+        current_user.password = generate_password_hash(new_pw, method='sha256')
+        db.session.commit()
+
+        flash("Your password has been updated!", "success")
+        return redirect(url_for('blah')) # not yet decided where to redirect
+
+    return render_template("change_password.html")
 
 if __name__ == "__main__":
     with app.app_context():
