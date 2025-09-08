@@ -1,0 +1,156 @@
+/* ===== BASIC STYLES ===== */
+body {
+    font-family: 'Segoe UI', Tahoma, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f8f9fa;
+}
+
+/* HEADER */
+header {
+    background: #4283bc;
+    color: #fff;
+    padding: 16px 0;
+    text-align: center;
+    font-size: 22px;
+    font-weight: bold;
+    letter-spacing: 1px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    position: relative;
+}
+
+/* ===== HAMBURGER MENU STYLES ===== */
+.hamburger-container {
+    position: absolute;
+    left: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 30;
+}
+
+/* Hamburger Toggle (Hidden Checkbox) */
+.hamburger-toggle {
+    display: none;
+}
+
+/* Hamburger Icon */
+.hamburger-icon {
+    display: flex;
+    flex-direction: column;
+    cursor: pointer;
+    gap: 4px;
+    padding: 8px;
+}
+
+.hamburger-line {
+    width: 25px;
+    height: 3px;
+    background-color: #fff;
+    transition: all 0.3s ease;
+    border-radius: 2px;
+}
+
+/* Hamburger Animation when Active */
+.hamburger-toggle:checked + .hamburger-icon .hamburger-line:nth-child(1) {
+    transform: rotate(45deg) translate(6px, 6px);
+}
+
+.hamburger-toggle:checked + .hamburger-icon .hamburger-line:nth-child(2) {
+    opacity: 0;
+}
+
+.hamburger-toggle:checked + .hamburger-icon .hamburger-line:nth-child(3) {
+    transform: rotate(-45deg) translate(6px, -6px);
+}
+
+/* Navigation Menu */
+.nav-menu {
+    position: fixed;
+    top: 0;
+    left: -300px;
+    width: 280px;
+    height: 100vh;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    box-shadow: 2px 0 15px rgba(0, 0, 0, 0.2);
+    z-index: 25;
+    transition: left 0.3s ease-in-out;
+    padding-top: 80px;
+}
+
+/* Show Menu when Hamburger is Checked */
+.hamburger-toggle:checked ~ .nav-menu {
+    left: 0;
+}
+
+/* Navigation Links */
+.nav-menu a {
+    display: block;
+    color: #ffffff;
+    text-decoration: none;
+    padding: 15px 25px;
+    font-weight: 500;
+    font-size: 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.25s ease-in-out;
+}
+
+.nav-menu a:hover {
+    background: rgba(255, 255, 255, 0.15);
+    color: #fff;
+    padding-left: 35px;
+    transform: translateX(5px);
+}
+
+/* Submenu Styling */
+.submenu {
+    background: rgba(0, 0, 0, 0.2);
+    border-left: 3px solid #00d4ff;
+    margin-top: 10px;
+}
+
+.submenu a {
+    padding-left: 40px;
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.9);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.submenu a:hover {
+    padding-left: 50px;
+    color: #00d4ff;
+    background: rgba(0, 212, 255, 0.1);
+}
+
+/* Overlay for closing menu when clicking outside */
+.menu-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 20;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease-in-out;
+    pointer-events: none;
+}
+
+.hamburger-toggle:checked ~ .menu-overlay {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+}
+
+
+/* ===== RESPONSIVE DESIGN ===== */
+@media (max-width: 768px) {
+    .nav-menu {
+        width: 100%;
+        left: -100%;
+    }
+
+    .hamburger-toggle:checked ~ .nav-menu {
+        left: 0;
+    }
+}
