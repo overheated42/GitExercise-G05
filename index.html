@@ -7,9 +7,23 @@
   <!-- Leaflet CSS & JS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+ <!-- Leaflet Routing Machine CSS -->
+ <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.css" />
+ <!-- Leaflet Routing Machine -->
+ <script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.js"></script>
 </head>
 <body>
    <h2>Lost in MMU?</h2>
+   <div id="controls">
+    <input type="text" id="search" placeholder="Search place...">
+    <button onclick="searchPlace()">Go</button>
+  </div>
+
+  <div id="sidebar">
+    <h3>Navigation Info</h3>
+    <p id="distance"></p>
+    <p id="time"></p>
+  </div>
 
   <div id="map"></div>
 
