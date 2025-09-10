@@ -17,3 +17,5 @@ Thumbs.db
 .env
 credentials.json
 token.pickle
+.env 
+app/.env 
