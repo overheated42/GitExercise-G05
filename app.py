@@ -3,7 +3,13 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin, login_user, LoginManager, login_required, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from itsdangerous import URLSafeTimedSerializer
-from flask_mail import Mail
+import pickle
+from google_auth_oauthlib.flow import InstalledAppFlow
+from google.auth.transport.requests import Request
+from googleapiclient.discovery import build
+from googleapiclient.errors import HttpError
+from email.mime.text import MIMEText
+import base64
 import os
 import secrets
 from werkzeug.utils import secure_filename
@@ -22,18 +28,11 @@ if os.getenv("FLASK_ENV") == "development":
 app = Flask(__name__, template_folder="app/templates", static_folder="app/static")
 app.config['SECRET_KEY'] = 'yoursecretkey'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
-app.config['MAIL_SERVER'] = 'smtp.gmail.com'
-app.config['MAIL_PORT'] = 587
-app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USERNAME'] = os.getenv("MAIL_USERNAME")
-app.config['MAIL_PASSWORD'] = os.getenv("MAIL_PASSWORD")
-mail = Mail(app)
 
 db = SQLAlchemy(app)
 #Token serialiser
 serializer = URLSafeTimedSerializer(app.config['SECRET_KEY'])
 
-password = generate_password_hash(secrets.token_hex(16))
 
 # Flask-Login setup
 login_manager = LoginManager()
@@ -52,6 +51,38 @@ google_bp = make_google_blueprint(
     ]
 )
 app.register_blueprint(google_bp, url_prefix="/login")
+
+# Gmail API setup
+SCOPES = ['https://www.googleapis.com/auth/gmail.send']
+
+def get_gmail_creds():
+    creds = None
+    if os.path.exists('token.pickle'):
+        with open('token.pickle', 'rb') as token:
+            creds = pickle.load(token)
+    if not creds or not creds.valid:
+        if creds and creds.expired and creds.refresh_token:
+            creds.refresh(Request())
+        else:
+            flow = InstalledAppFlow.from_client_secrets_file('credentials.json', SCOPES)
+            creds = flow.run_local_server(port=0)
+        with open('token.pickle', 'wb') as token:
+            pickle.dump(creds, token)
+    return creds
+
+def send_email(to, subject, body):
+    creds = get_gmail_creds()
+    service = build('gmail', 'v1', credentials=creds)
+    message = MIMEText(body)
+    message['to'] = to
+    message['subject'] = subject
+    raw = base64.urlsafe_b64encode(message.as_bytes()).decode()
+    try:
+        sent_message = service.users().messages().send(userId='me', body={'raw': raw}).execute()
+        print(f"Message sent: {sent_message['id']}")
+    except HttpError as error:
+        print(f"Error sending email: {error}")
+        print(f"Reset link for {to}: {body}")  # fallback for testing
 
 
 
@@ -170,17 +201,10 @@ def forgot_password():
         email = request.form.get('email')
         user = User.query.filter_by(email=email).first()
         if user:
-            # Create reset token
             token = serializer.dumps(user.email, salt='password-reset-salt')
             reset_url = url_for('reset_password', token=token, _external=True)
-
-            # Send email (or print for testing)
-            msg = Message("Password Reset Request",
-                          sender="your_email@gmail.com",
-                          recipients=[user.email])
-            msg.body = f"Click the link to reset your password: {reset_url}"
-            mail.send(msg)
-
+            body = f"Click the link to reset your password: {reset_url}"
+            send_email(user.email, "Password Reset Request", body)
             flash("A reset link has been sent to your email.", "info")
             return redirect(url_for('login'))
         else:
@@ -221,19 +245,11 @@ def account():
         name = request.form.get("name")
         username = request.form.get("username")
         email = request.form.get("email")
-        file = request.files.get("avatar")
 
         # Update user info
         current_user.username = username
         current_user.email = email
         current_user.name = name
-
-        # Save avatar if uploaded
-        if file and allowed_file(file.filename):
-            filename = secure_filename(file.filename)
-            filepath = os.path.join(app.config["UPLOAD_FOLDER"], filename)
-            file.save(filepath)
-            current_user.avatar = filename
 
         db.session.commit()
         flash("Account updated successfully!", "success")

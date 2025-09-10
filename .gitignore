@@ -15,3 +15,5 @@ instance/
 .DS_Store
 Thumbs.db
 .env
+credentials.json
+token.pickle
