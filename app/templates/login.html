@@ -34,6 +34,15 @@
                 </label>
                 <button type="submit">Login</button>
             </form>
+            <div class="google-login">
+                <a href="{{ url_for('google.login') }}">
+                    <button type="button" class="google-btn">
+                        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google logo" width="18">
+                        Login with Google
+                    </button>
+                </a>
+            </div>
+
             <p>Don't have an account? <a href="{{ url_for('register') }}">Register here</a></p>
             <p>Forgotten password? <a href="{{ url_for('forgot_password') }}">Click here</a></p>
         </div>

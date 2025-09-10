@@ -3,11 +3,22 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin, login_user, LoginManager, login_required, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from itsdangerous import URLSafeTimedSerializer
-from flask_mail import Mail, Message
+from flask_mail import Mail
 import os
+import secrets
 from werkzeug.utils import secure_filename
+from flask_dance.contrib.google import make_google_blueprint, google
+from dotenv import load_dotenv
 
+print("Current working directory:", os.getcwd())
+print("Looking for .env at:", os.path.join(os.path.dirname(__file__), ".env"))
 
+load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), ".env"))
+
+print("Google Client ID:", os.getenv("GOOGLE_OAUTH_CLIENT_ID"))
+print("Google Client Secret:", os.getenv("GOOGLE_OAUTH_CLIENT_SECRET"))
+print("Google Client ID:", os.getenv("GOOGLE_OAUTH_CLIENT_ID"))
+print("Google Client Secret:", os.getenv("GOOGLE_OAUTH_CLIENT_SECRET"))
 
 # Flask app and database 
 app = Flask(__name__, template_folder="app/templates", static_folder="app/static")
@@ -16,19 +27,30 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USERNAME'] = 'your_email@gmail.com'
-app.config['MAIL_PASSWORD'] = 'your_password'
-db = SQLAlchemy(app)
+app.config['MAIL_USERNAME'] = os.getenv("MAIL_USERNAME")
+app.config['MAIL_PASSWORD'] = os.getenv("MAIL_PASSWORD")
 mail = Mail(app)
 
+db = SQLAlchemy(app)
 #Token serialiser
 serializer = URLSafeTimedSerializer(app.config['SECRET_KEY'])
 
+password = generate_password_hash(secrets.token_hex(16))
 
 # Flask-Login setup
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = "login"
+
+# Google OAuth setup
+google_bp = make_google_blueprint(
+    client_id=os.getenv("GOOGLE_OAUTH_CLIENT_ID"),
+    client_secret=os.getenv("GOOGLE_OAUTH_CLIENT_SECRET"),
+    redirect_to="google_login",   # after login, go here
+    scope=["profile", "email"]
+)
+app.register_blueprint(google_bp, url_prefix="/login")
+
 
 # User model
 class User(UserMixin, db.Model):
@@ -215,6 +237,39 @@ def account():
         return redirect(url_for("account"))
 
     return render_template("account.html", user=current_user)
+
+@app.route("/google_login")
+def google_login():
+    if not google.authorized:
+        return redirect(url_for("google.login"))
+
+    resp = google.get("/oauth2/v2/userinfo")
+    if not resp.ok:
+        flash("Failed to fetch Google user info", "danger")
+        return redirect(url_for("login"))
+
+    user_info = resp.json()
+    email = user_info["email"]
+    name = user_info.get("name", email.split("@")[0])
+
+    # Check if user already exists
+    user = User.query.filter_by(email=email).first()
+    if not user:
+        # create a new user
+        new_user = User(
+            name=name,
+            email=email,
+            username=email,  # you could use email as username
+            password=generate_password_hash(os.urandom(16))  # random password, unused
+        )
+        db.session.add(new_user)
+        db.session.commit()
+        user = new_user
+
+    login_user(user)
+    flash("Logged in with Google!", "success")
+    return redirect(url_for("home"))
+
 
 if __name__ == "__main__":
     with app.app_context():
