@@ -10,15 +10,13 @@ from werkzeug.utils import secure_filename
 from flask_dance.contrib.google import make_google_blueprint, google
 from dotenv import load_dotenv
 
-print("Current working directory:", os.getcwd())
-print("Looking for .env at:", os.path.join(os.path.dirname(__file__), ".env"))
 
-load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), ".env"))
+load_dotenv()
 
-print("Google Client ID:", os.getenv("GOOGLE_OAUTH_CLIENT_ID"))
-print("Google Client Secret:", os.getenv("GOOGLE_OAUTH_CLIENT_SECRET"))
-print("Google Client ID:", os.getenv("GOOGLE_OAUTH_CLIENT_ID"))
-print("Google Client Secret:", os.getenv("GOOGLE_OAUTH_CLIENT_SECRET"))
+# Allow insecure transport only in debug mode (local development)
+if os.getenv("FLASK_ENV") == "development":
+    os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"
+
 
 # Flask app and database 
 app = Flask(__name__, template_folder="app/templates", static_folder="app/static")
@@ -47,9 +45,14 @@ google_bp = make_google_blueprint(
     client_id=os.getenv("GOOGLE_OAUTH_CLIENT_ID"),
     client_secret=os.getenv("GOOGLE_OAUTH_CLIENT_SECRET"),
     redirect_to="google_login",   # after login, go here
-    scope=["profile", "email"]
+    scope=[
+        "openid",
+        "https://www.googleapis.com/auth/userinfo.profile",
+        "https://www.googleapis.com/auth/userinfo.email"
+    ]
 )
 app.register_blueprint(google_bp, url_prefix="/login")
+
 
 
 # User model
