@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My Account</title>
+    <style>
+        body { font-family: Arial; margin: 40px; text-align: center; }
+        form { max-width: 400px; margin: auto; }
+        input { display: block; margin: 10px auto; padding: 8px; width: 100%; }
+        button { padding: 10px; width: 100%; background: #007BFF; color: white; border: none; }
+        button:hover { background: #0056b3; }
+        img { border-radius: 50%; width: 120px; height: 120px; object-fit: cover; margin: 20px; }
+    </style>
+</head>
+<body>
+    <h2>Account Details</h2>
+    {% if user.avatar %}
+        <img src="{{ url_for('static', filename='uploads/' + user.avatar) }}" alt="Avatar">
+    {% else %}
+        <img src="{{ url_for('static', filename='default.jpg') }}" alt="Default Avatar">
+    {% endif %}
+
+    <form method="POST" enctype="multipart/form-data">
+        <input type="text" name="username" value="{{ user.username }}" required>
+        <input type="email" name="email" value="{{ user.email }}" required>
+        <input type="file" name="avatar">
+        <button type="submit">Update Account</button>
+    </form>
+</body>
+</html>

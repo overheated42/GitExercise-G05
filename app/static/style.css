@@ -154,3 +154,109 @@ header {
         left: 0;
     }
 }
+
+/* ===== LOGIN & REGISTER FORM STYLES ===== */
+.login-bg,
+.register-bg { 
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 40px;
+}
+
+.login-bg form,
+.register-bg form { 
+    background: #fff;
+    padding: 30px 25px;
+    border-radius: 12px;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+    width: 100%;
+    max-width: 400px;
+}
+
+.login-bg h2, 
+.register-bg h2 { 
+    text-align: center;
+    margin-bottom: 20px;
+    color: #004aad;
+}
+
+
+.login-form p[style],
+.register-form p[style] { 
+    text-align: center;
+    margin-bottom: 15px;
+    font-size: 14px;
+    color: red !important;
+}
+
+/* Labels & Inputs */
+.login-form label ,
+.register-form label { 
+    display: block;
+    margin-bottom: 6px;
+    font-size: 14px;
+    color: #444;
+}
+
+.login-form input[type="text"], 
+.login-form input[type="password"] ,
+.register-form input[type="text"], 
+.register-form input[type="email"],
+.register-form input[type="password"] { 
+    border-color: #004aad;
+    width: 100%;
+    padding: 5px;   /* 🔴 makes it tall */
+    font-size: 16px; /* 🔴 makes text and box bigger */
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    outline: none;
+    margin-bottom: 15px;
+}
+
+/* Checkbox */
+.login-form input[type="checkbox"],
+.register-form input[type="checkbox"] { 
+    margin-right: 6px;
+}
+
+/* Button */
+.login-form button,
+.register-form button { 
+    width: 100%;
+    padding: 12px;
+    background: #004aad;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.login-form button:hover,
+.register-form button:hover { 
+    background: #003080;
+}
+
+/* Links */
+.login-bg p ,
+.register-bg p { 
+    text-align: center;
+    margin-top: 12px;
+    font-size: 14px;
+}
+
+.login-bg a ,
+.register-bg a { 
+    color: #004aad;
+    text-decoration: none;
+}
+
+.login-bg a:hover,
+.register-bg a:hover { 
+    text-decoration: underline;
+}
+
+

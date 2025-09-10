@@ -4,6 +4,10 @@ from flask_login import UserMixin, login_user, LoginManager, login_required, log
 from werkzeug.security import generate_password_hash, check_password_hash
 from itsdangerous import URLSafeTimedSerializer
 from flask_mail import Mail, Message
+import os
+from werkzeug.utils import secure_filename
+
+
 
 # Flask app and database 
 app = Flask(__name__, template_folder="app/templates", static_folder="app/static")
@@ -33,6 +37,7 @@ class User(UserMixin, db.Model):
     email = db.Column(db.String(150), unique=True, nullable=False)
     username = db.Column(db.String(150), unique=True, nullable=False)
     password = db.Column(db.String(200), nullable=False)  # store hashed password
+
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -106,6 +111,8 @@ def logout():
     return redirect(url_for("login"))
 
 # Change password 
+@app.route("/change_password", methods=["GET", "POST"])
+@login_required
 def change_password():
     if request.method == 'POST':
         current_pw = request.form.get('current_password')
@@ -127,7 +134,7 @@ def change_password():
         db.session.commit()
 
         flash("Your password has been updated!", "success")
-        return redirect(url_for('blah')) # not yet decided where to redirect
+        return redirect(url_for('account')) # not yet decided where to redirect
 
     return render_template("change_password.html")
 
@@ -181,6 +188,33 @@ def reset_password(token):
         return redirect(url_for('login'))
 
     return render_template("reset_password.html", token=token)
+
+@app.route("/account", methods=["GET", "POST"])
+@login_required
+def account():
+    if request.method == "POST":
+        name = request.form.get("name")
+        username = request.form.get("username")
+        email = request.form.get("email")
+        file = request.files.get("avatar")
+
+        # Update user info
+        current_user.username = username
+        current_user.email = email
+        current_user.name = name
+
+        # Save avatar if uploaded
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            filepath = os.path.join(app.config["UPLOAD_FOLDER"], filename)
+            file.save(filepath)
+            current_user.avatar = filename
+
+        db.session.commit()
+        flash("Account updated successfully!", "success")
+        return redirect(url_for("account"))
+
+    return render_template("account.html", user=current_user)
 
 if __name__ == "__main__":
     with app.app_context():
