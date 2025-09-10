@@ -175,6 +175,14 @@ header {
     max-width: 400px;
 }
 
+.register-form { 
+    background: #fff;
+    padding: 30px 25px;
+    border-radius: 12px;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+    width: 100%;
+    max-width: 500px;
+}
 .login-bg h2, 
 .register-bg h2 { 
     text-align: center;
