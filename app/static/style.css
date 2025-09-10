@@ -294,3 +294,74 @@ header {
     background: #f5f5f5;
     transform: translateY(-2px);
 }
+
+/* ===== ACCOUNT MANAGEMENT PAGE ===== */
+.account-bg  {
+    justify-content: center; /* horizontal center */
+}
+
+.account-bg h2 {
+   text-align: center;
+    margin-bottom: 20px;
+    color: #004aad;
+}
+
+.account-form {
+    background: #fff;
+    padding: 40px 30px;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    width: 100%;
+    max-width: 450px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+/* FORM TITLE */
+.account-form h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #004aad;
+}
+
+/* INPUT FIELDS */
+.account-form input[type="text"],
+.account-form input[type="email"] {
+    width: 100%;
+    padding: 10px 12px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    outline: none;
+    transition: border 0.3s ease, box-shadow 0.3s ease;
+}
+
+.account-form input[type="text"]:focus,
+.account-form input[type="email"]:focus {
+    border-color: #004aad;
+    box-shadow: 0 0 8px rgba(0, 74, 173, 0.3);
+}
+
+/* SUBMIT BUTTON */
+.account-form button {
+    width: 100%;
+    padding: 12px;
+    background-color: #004aad;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background 0.3s ease, transform 0.2s ease;
+}
+
+.account-form button:hover {
+    background-color: #003080;
+    transform: translateY(-2px);
+}
+
+/* PLACEHOLDER STYLE */
+.account-form input::placeholder {
+    color: #999;
+}
