@@ -1,32 +1,28 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Campus Map</title>
   <link rel="stylesheet" href="style.css">
 
   <!-- Leaflet CSS & JS -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
- <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
- <!-- Leaflet Routing Machine CSS -->
+ <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
  <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.css" />
- <!-- Leaflet Routing Machine -->
- <script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.js"></script>
+ <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
+ <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-   <h2>Lost in MMU?</h2>
-   <div id="controls">
-    <input type="text" id="search" placeholder="Search place...">
-    <button onclick="searchPlace()">Go</button>
-  </div>
-
-  <div id="sidebar">
-    <h3>Navigation Info</h3>
-    <p id="distance"></p>
-    <p id="time"></p>
-  </div>
-
+   
+   <h3>Navigation Info</h3>
+   
   <div id="map"></div>
 
+  <!-- Leaflet Routing Machine -->
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
+  <script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.js"></script>
+  <script src="https://unpkg.com/leaflet-geometryutil"></script> <!-- helper -->
+  
   <script src="scripts.js"></script>
 </body>
 </html>
