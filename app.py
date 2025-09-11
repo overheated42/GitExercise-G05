@@ -23,6 +23,7 @@ load_dotenv()
 if os.getenv("FLASK_ENV") == "development":
     os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"
 
+os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"
 
 # Flask app and database 
 app = Flask(__name__, template_folder="app/templates", static_folder="app/static")
