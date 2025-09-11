@@ -10,15 +10,37 @@ h2 {
   margin: 10px 0;
 }
 
-#search {
-  display: block;
-  margin: 10px auto;
-  padding: 8px;
-  width: 80%;
-  max-width: 400px;
-}
-
 #map {
   height: 500px; 
   width: 100%;  
+}
+
+/* Custom search bar inside map */
+.leaflet-control-search {
+  background: white;
+  padding: 5px;
+  border: 1px solid #888;
+  border-radius: 4px;
+}
+
+.leaflet-control-search input {
+  border: none;
+  outline: none;
+  padding: 5px;
+  width: 140px;
+}
+
+.leaflet-control-search button {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+/* Make the turn-by-turn panel usable on phones */
+.leaflet-routing-container {
+  max-height: 40vh;
+  overflow: auto;
+}
+@media (max-width: 600px) {
+  .leaflet-routing-container { font-size: 14px; }
 }

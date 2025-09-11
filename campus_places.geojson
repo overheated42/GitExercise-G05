@@ -1,0 +1,29 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": { "name": "Library" },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [101.64172530602222, 2.927791835272196]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": { "name": "Cafeteria" },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [101.64302226153343, 2.927894257605161]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": { "name": "Faculty of Computing & Informatics" },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [101.64057180985893, 2.9292291892506377]
+      }
+    }
+  ]
+}
