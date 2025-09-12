@@ -3,15 +3,11 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin, login_user, LoginManager, login_required, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from itsdangerous import URLSafeTimedSerializer
-import pickle
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
-from googleapiclient.discovery import build
-from googleapiclient.errors import HttpError
-from email.mime.text import MIMEText
-import base64
 import os
 import secrets
+from flask_mail import Mail, Message
 from werkzeug.utils import secure_filename
 from flask_dance.contrib.google import make_google_blueprint, google
 from dotenv import load_dotenv
@@ -23,12 +19,21 @@ load_dotenv()
 if os.getenv("FLASK_ENV") == "development":
     os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"
 
-os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"
-
 # Flask app and database 
 app = Flask(__name__, template_folder="app/templates", static_folder="app/static")
-app.config['SECRET_KEY'] = 'yoursecretkey'
+app.config['SECRET_KEY'] = os.getenv("SECRET_KEY", secrets.token_hex(32))
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
+
+# Flask-Mail setup
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USERNAME'] = os.getenv("MAIL_USERNAME")  # your Gmail
+app.config['MAIL_PASSWORD'] = os.getenv("MAIL_PASSWORD")  # your Gmail App Password
+app.config['MAIL_DEFAULT_SENDER'] = os.getenv("MAIL_DEFAULT_SENDER", app.config['MAIL_USERNAME'])
+
+mail = Mail(app)
+
 
 db = SQLAlchemy(app)
 #Token serialiser
@@ -53,38 +58,18 @@ google_bp = make_google_blueprint(
 )
 app.register_blueprint(google_bp, url_prefix="/login")
 
-# Gmail API setup
-SCOPES = ['https://www.googleapis.com/auth/gmail.send']
 
-def get_gmail_creds():
-    creds = None
-    if os.path.exists('token.pickle'):
-        with open('token.pickle', 'rb') as token:
-            creds = pickle.load(token)
-    if not creds or not creds.valid:
-        if creds and creds.expired and creds.refresh_token:
-            creds.refresh(Request())
-        else:
-            flow = InstalledAppFlow.from_client_secrets_file('credentials.json', SCOPES)
-            creds = flow.run_local_server(port=0)
-        with open('token.pickle', 'wb') as token:
-            pickle.dump(creds, token)
-    return creds
-
+#flask-mail helper function
 def send_email(to, subject, body):
-    creds = get_gmail_creds()
-    service = build('gmail', 'v1', credentials=creds)
-    message = MIMEText(body)
-    message['to'] = to
-    message['subject'] = subject
-    raw = base64.urlsafe_b64encode(message.as_bytes()).decode()
     try:
-        sent_message = service.users().messages().send(userId='me', body={'raw': raw}).execute()
-        print(f"Message sent: {sent_message['id']}")
-    except HttpError as error:
-        print(f"Error sending email: {error}")
-        print(f"Reset link for {to}: {body}")  # fallback for testing
-
+        msg = Message(subject, recipients=[to])
+        msg.body = body
+        mail.send(msg)
+        print(f"Email sent to {to}")
+    except Exception as e:
+        print(f"Error sending email: {e}")
+        if app.debug:
+            print(f"Reset link for {to}: {body}")  # fallback in debug mode
 
 
 # User model
@@ -187,7 +172,8 @@ def change_password():
             return redirect(url_for('change_password'))
 
         # 3. Update password
-        current_user.password = generate_password_hash(new_pw, method='sha256')
+        current_user.password = generate_password_hash(new_pw, method="pbkdf2:sha256")
+
         db.session.commit()
 
         flash("Your password has been updated!", "success")
@@ -231,7 +217,7 @@ def reset_password(token):
             flash("Passwords do not match.", "danger")
             return redirect(request.url)
 
-        user.password = generate_password_hash(new_pw, method='sha256')
+        user.password = generate_password_hash(new_pw, method="pbkdf2:sha256")
         db.session.commit()
 
         flash("Your password has been reset. Please login.", "success")
@@ -280,7 +266,7 @@ def google_login():
             name=name,
             email=email,
             username=email,  # you could use email as username
-            password=generate_password_hash(os.urandom(16))  # random password, unused
+            password=generate_password_hash(secrets.token_hex(16), method="pbkdf2:sha256") # random password, unused
         )
         db.session.add(new_user)
         db.session.commit()
