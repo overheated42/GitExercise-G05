@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>LOST IN MMU?</title>
+</head>
+<body>
+    <header>
+        <h1>LOST IN MMU?</h1>
+    </header>
+
+    <main style="padding:20px;" class = "login-bg">
+        <div class="login-form">
+              <h2>Login</h2>
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <p style="color: red;">{{ message }}</p>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <form method="POST">
+                <label>Username:</label>
+                <input type="text" name="username" required><br><br>
+
+                <label>Password:</label>
+                <input type="password" name="password" required><br><br>
+
+                <label>
+                <input type="checkbox" name="remember"> Remember Me
+                </label>
+                <button type="submit">Login</button>
+            </form>
+            <div class="google-login">
+                <a href="{{ url_for('google.login') }}">
+                    <button type="button" class="google-btn">
+                        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google logo" width="18">
+                        Login with Google
+                    </button>
+                </a>
+            </div>
+
+            <p>Don't have an account? <a href="{{ url_for('register') }}">Register here</a></p>
+            <p>Forgotten password? <a href="{{ url_for('forgot_password') }}">Click here</a></p>
+        </div>
+    </main>
+
+</body>
+</html>
+
+

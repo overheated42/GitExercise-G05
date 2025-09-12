@@ -154,3 +154,214 @@ header {
         left: 0;
     }
 }
+
+/* ===== LOGIN & REGISTER FORM STYLES ===== */
+.login-bg,
+.register-bg { 
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 40px;
+}
+
+.login-form  { 
+    background: #fff;
+    padding: 30px 25px;
+    border-radius: 12px;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+    width: 100%;
+    max-width: 400px;
+}
+
+.register-form { 
+    background: #fff;
+    padding: 30px 25px;
+    border-radius: 12px;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+    width: 100%;
+    max-width: 500px;
+}
+
+.login-bg h2, 
+.register-bg h2 { 
+    text-align: center;
+    margin-bottom: 20px;
+    color: #004aad;
+}
+
+
+.login-form p[style],
+.register-form p[style] { 
+    text-align: center;
+    margin-bottom: 15px;
+    font-size: 14px;
+    color: red !important;
+}
+
+/* Labels & Inputs */
+.login-form label ,
+.register-form label { 
+    display: block;
+    margin-bottom: 6px;
+    font-size: 14px;
+    color: #444;
+}
+
+.login-form input[type="text"], 
+.login-form input[type="password"] ,
+.register-form input[type="text"], 
+.register-form input[type="email"],
+.register-form input[type="password"] { 
+    border-color: #004aad;
+    width: 100%;
+    padding: 5px;   /* 🔴 makes it tall */
+    font-size: 16px; /* 🔴 makes text and box bigger */
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    outline: none;
+    margin-bottom: 15px;
+}
+
+/* Checkbox */
+.login-form input[type="checkbox"],
+.register-form input[type="checkbox"] { 
+    margin-right: 6px;
+}
+
+/* Button */
+.login-form button,
+.register-form button { 
+    width: 100%;
+    padding: 12px;
+    background: #004aad;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.login-form button:hover,
+.register-form button:hover { 
+    background: #003080;
+}
+
+/* Links */
+.login-bg p ,
+.register-bg p { 
+    text-align: center;
+    margin-top: 12px;
+    font-size: 14px;
+}
+
+.login-bg a ,
+.register-bg a { 
+    color: #004aad;
+    text-decoration: none;
+}
+
+.login-bg a:hover,
+.register-bg a:hover { 
+    text-decoration: underline;
+}
+
+/* ===== GOOGLE LOGIN BUTTON ===== */
+.google-login {
+    margin-top: 15px;
+    text-align: center;
+}
+
+.google-btn {
+    width: 100%;
+    padding: 12px;
+    background: #ffffff;
+    color: #444;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.3s ease, transform 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;  /* space for icon if you add one later */
+}
+
+.google-btn:hover {
+    background: #f5f5f5;
+    transform: translateY(-2px);
+}
+
+/* ===== ACCOUNT MANAGEMENT PAGE ===== */
+.account-bg  {
+    justify-content: center; /* horizontal center */
+}
+
+.account-bg h2 {
+   text-align: center;
+    margin-bottom: 20px;
+    color: #004aad;
+}
+
+.account-form {
+    background: #fff;
+    padding: 40px 30px;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    width: 100%;
+    max-width: 450px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+/* FORM TITLE */
+.account-form h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #004aad;
+}
+
+/* INPUT FIELDS */
+.account-form input[type="text"],
+.account-form input[type="email"] {
+    width: 100%;
+    padding: 10px 12px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    outline: none;
+    transition: border 0.3s ease, box-shadow 0.3s ease;
+}
+
+.account-form input[type="text"]:focus,
+.account-form input[type="email"]:focus {
+    border-color: #004aad;
+    box-shadow: 0 0 8px rgba(0, 74, 173, 0.3);
+}
+
+/* SUBMIT BUTTON */
+.account-form button {
+    width: 100%;
+    padding: 12px;
+    background-color: #004aad;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background 0.3s ease, transform 0.2s ease;
+}
+
+.account-form button:hover {
+    background-color: #003080;
+    transform: translateY(-2px);
+}
+
+/* PLACEHOLDER STYLE */
+.account-form input::placeholder {
+    color: #999;
+}

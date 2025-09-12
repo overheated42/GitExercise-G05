@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <title>MMU HORIZON</title>
+    <title>LOST IN MMU?</title>
 </head>
-<body>
+<body >
     <header>
         <!-- Hamburger Menu Container -->
         <div class="hamburger-container">
@@ -37,10 +37,20 @@
 
         <h1>LOST IN MMU?</h1>
     </header>
+    <main class="account-bg">
+    <h2>Account Details</h2>
 
-    <!-- Your main content will go here -->
-    <main>
-        <!-- Add your page content here -->
+    <form method="POST" class="account-form" enctype="multipart/form-data">
+        <label>Name:</label>
+        <input type="text" name="name" value="{{ user.name }}" placeholder="Name" required>
+
+        <label>Username:</label>
+        <input type="text" name="username" value="{{ user.username }}" placeholder="Username" required>
+
+        <label>Email:</label>
+        <input type="email" name="email" value="{{ user.email }}" placeholder="Email" required>
+        <button type="submit">Update Account</button>
+    </form>
     </main>
 </body>
 </html>
