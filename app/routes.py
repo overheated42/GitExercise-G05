@@ -1,8 +1,12 @@
-from flask import Blueprint, render_template, request, jsonify
+from flask import Blueprint, render_template, request, jsonify, redirect, url_for, flash 
 import google.generativeai as genai
 import os
 from dotenv import load_dotenv  # For secure API key management
-
+from flask_login import login_required, current_user
+from werkzeug.security import generate_password_hash, check_password_hash
+from app import db, serializer
+from .models import User
+from .email_utils import send_email
 # Load environment variables
 load_dotenv()
 
@@ -30,9 +34,6 @@ model = genai.GenerativeModel(
     generation_config=generation_config
 )
 
-@main.route('/')
-def home():
-    return render_template('index.html')
 
 @main.route('/chat', methods=['POST'])
 def chat():
@@ -173,3 +174,82 @@ def facilities():
 def health_check():
     """Simple endpoint to check if the service is running"""
     return jsonify({'status': 'healthy', 'service': 'MMU AI Assistant'})
+
+
+#manveet part
+
+@main.route('/')
+@login_required
+def home():
+    return render_template("index.html", name=current_user.name)
+
+@main.route("/account", methods=["GET", "POST"])
+@login_required
+def account():
+    if request.method == "POST":
+        current_user.name = request.form.get("name")
+        current_user.username = request.form.get("username")
+        current_user.email = request.form.get("email")
+        db.session.commit()
+        flash("Account updated successfully!", "success")
+        return redirect(url_for("main.account"))
+    return render_template("account.html", user=current_user)
+
+@main.route("/change_password", methods=["GET", "POST"])
+@login_required
+def change_password():
+    if request.method == 'POST':
+        current_pw = request.form.get('current_password')
+        new_pw = request.form.get('new_password')
+        confirm_pw = request.form.get('confirm_password')
+
+        if not check_password_hash(current_user.password, current_pw):
+            flash("Current password is incorrect.", "danger")
+            return redirect(url_for('main.change_password'))
+
+        if new_pw != confirm_pw:
+            flash("New passwords do not match.", "danger")
+            return redirect(url_for('main.change_password'))
+
+        current_user.password = generate_password_hash(new_pw, method="pbkdf2:sha256")
+        db.session.commit()
+        flash("Password updated!", "success")
+        return redirect(url_for('main.account'))
+
+    return render_template("change_password.html")
+
+@main.route('/forgot_password', methods=['GET', 'POST'])
+def forgot_password():
+    if request.method == 'POST':
+        email = request.form.get('email')
+        user = User.query.filter_by(email=email).first()
+        if user:
+            token = serializer.dumps(user.email, salt='password-reset-salt')
+            reset_url = url_for('main.reset_password', token=token, _external=True)
+            send_email(user.email, "Password Reset Request", f"Click here: {reset_url}")
+            flash("A reset link has been sent.", "info")
+            return redirect(url_for('auth.login'))
+        flash("Email not found.", "danger")
+    return render_template("forgot_password.html")
+
+@main.route('/reset_password/<token>', methods=['GET', 'POST'])
+def reset_password(token):
+    try:
+        email = serializer.loads(token, salt='password-reset-salt', max_age=3600)
+    except:
+        flash("Invalid or expired link.", "danger")
+        return redirect(url_for('main.forgot_password'))
+
+    user = User.query.filter_by(email=email).first()
+    if request.method == 'POST':
+        new_pw = request.form.get('new_password')
+        confirm_pw = request.form.get('confirm_password')
+        if new_pw != confirm_pw:
+            flash("Passwords do not match.", "danger")
+            return redirect(request.url)
+        user.password = generate_password_hash(new_pw, method="pbkdf2:sha256")
+        db.session.commit()
+        flash("Password reset successful!", "success")
+        return redirect(url_for('auth.login'))
+
+    return render_template("reset_password.html", token=token)

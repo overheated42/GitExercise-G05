@@ -1,15 +1,41 @@
-# Environment variables
-.env
-
-# Python cache & bytecode
+# Byte-compiled / cache files
 __pycache__/
-*.pyc
+*.py[cod]
+*$py.class
 
-# VS Code settings
-.vscode/
-
-# Virtual environment (if you use one)
+# Virtual environments
+.venv/
 venv/
+env/
+ENV/
+
+# IDE / Editor files
+.vscode/
+.idea/
+*.swp
+
+# OS-specific
+.DS_Store
+Thumbs.db
+
+# Flask / instance config
+instance/
+*.db
+*.sqlite3
 
 # Logs
 *.log
+
+# Environment variables
+.env
+*.env
+
+# PyInstaller / Build
+build/
+dist/
+*.egg-info/
+
+# Coverage / Testing
+.coverage
+htmlcov/
+.pytest_cache/

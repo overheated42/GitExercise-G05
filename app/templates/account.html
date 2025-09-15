@@ -4,14 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <title>MMU HORIZON</title>
-
-     <!-- Leaflet CSS & JS -->
-     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
-     <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.css" />
-     <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
+    <title>LOST IN MMU?</title>
 </head>
-<body>
+<body >
     <header>
         <!-- Hamburger Menu Container -->
         <div class="hamburger-container">
@@ -25,10 +20,10 @@
             <!-- Navigation Menu -->
             <nav class="nav-menu">
                 <a href="#faculties">Faculties</a>
-                <a href="#food-beverages">Food and Beverages</a>
+                <a href="#food-beverages">Food & Beverages</a>
                 <a href="#facilities">Facilities</a>
-                
-                <!-- Submenu Items -->
+
+                <!-- Submenu Items (Previously in "More" dropdown) -->
                 <div class="submenu">
                     <a href="#hostel">Hostel</a>
                     <a href="{{ url_for('auth.account') }}">Account</a>
@@ -36,28 +31,25 @@
                 </div>
             </nav>
 
-            <!-- Close button overlay -->
+            <!-- Overlay to close menu when clicking outside -->
             <label for="hamburger-toggle" class="menu-overlay"></label>
         </div>
 
         <h1>LOST IN MMU?</h1>
     </header>
+    <main class="account-bg">
+    <h2>Account Details</h2>
+    <form method="POST" class="account-form" enctype="multipart/form-data">
+        <label>Name:</label>
+        <input type="text" name="name" value="{{ user.name }}" placeholder="Name" required>
 
-    <!-- Your main content will go here -->
-    <main>
-        <div id="map"></div>
+        <label>Username:</label>
+        <input type="text" name="username" value="{{ user.username }}" placeholder="Username" required>
+
+        <label>Email:</label>
+        <input type="email" name="email" value="{{ user.email }}" placeholder="Email" required>
+        <button type="submit">Update Account</button>
+    </form>
     </main>
-
-      
-     <!-- Leaflet Routing Machine -->
-     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-     <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
-     <script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.js"></script>
-     <script src="https://unpkg.com/leaflet-geometryutil"></script> <!-- helper -->
-        
-     <script src="static/scripts.js"></script>
-    
-      
-    
 </body>
 </html>
