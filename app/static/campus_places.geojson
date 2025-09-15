@@ -11,7 +11,7 @@
     },
     {
       "type": "Feature",
-      "properties": { "name": "Cafeteria" },
+      "properties": { "name": "MMU Starbees" },
       "geometry": {
         "type": "Point",
         "coordinates": [101.64302226153343, 2.927894257605161]
@@ -22,7 +22,119 @@
       "properties": { "name": "Faculty of Computing & Informatics" },
       "geometry": {
         "type": "Point",
-        "coordinates": [101.64057180985893, 2.9292291892506377]
+        "coordinates": [101.64097972298318, 2.9287426067758626]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": { "name": "Faculty of Management" },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 101.64123634592652, 2.9297125872433063]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": { "name": "Dewan Tun Canselor" },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [101.64200289670202, 2.9288047489155544]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": { "name": "Faculty of Engineering" },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [101.64115771069797, 2.92642464400397]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": { "name": "Restoran Haji Tapah Bistro" },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [101.64178161576882, 2.9271036089864446]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": { "name": "Faculty of Creative Multimedia" },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [101.64267253083617, 2.9261590322885573]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": { "name": "Faculty of Creative Multimedia" },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [101.64267253083617, 2.9261590322885573]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": { "name": "Central Lecture Complex" },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [101.64243027798766, 2.9278016475210515]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": { "name": "STAD Building MMU" },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [101.6419575255755, 2.925489014871112]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": { "name": "Deen's Cafe" },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [101.64235301233973, 2.925407606342957]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": { "name": "HB4" },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [101.64425902787414, 2.9258018508584476]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": { "name": "HB3" },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [101.64387098264679, 2.9251774816803597]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": { "name": "HB2" },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [101.64489499088562, 2.9251703050211293]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": { "name": "HB1" },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [101.64555610497666, 2.9249155335883295]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": { "name": "Surau Al Hidayah MMU" },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [101.64311076705505, 2.9244972693053937]
       }
     }
   ]
