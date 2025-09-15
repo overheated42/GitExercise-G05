@@ -1,15 +1,5 @@
-from flask import Flask
+from app import create_app  # <-- use the one from __init__.py
 
-def create_app():
-    app = Flask(__name__)
-    
-    # Register the blueprint (this handles all your routes)
-    from app.routes import main
-    app.register_blueprint(main)
-    
-    return app
-
-# Create the app
 app = create_app()
 
 if __name__ == "__main__":

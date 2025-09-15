@@ -9,13 +9,16 @@ from flask_dance.contrib.google import make_google_blueprint
 
 load_dotenv()
 
+if os.getenv("FLASK_ENV") == "development":
+    os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"
+
 db = SQLAlchemy()
 mail = Mail()
 login_manager = LoginManager()
 serializer = URLSafeTimedSerializer(os.getenv("SECRET_KEY", secrets.token_hex(32)))
 
 def create_app():
-    app = Flask(__name__, template_folder="app/templates", static_folder="app/static")
+    app = Flask(__name__, template_folder="templates", static_folder="static")
 
     # Config
     app.config['SECRET_KEY'] = os.getenv("SECRET_KEY", secrets.token_hex(32))
@@ -47,9 +50,9 @@ def create_app():
 
     # Register Blueprints
     from .auth import auth_bp
-    from .routes import main_bp
+    from .routes import main
     app.register_blueprint(auth_bp)
-    app.register_blueprint(main_bp)
+    app.register_blueprint(main)
 
     with app.app_context():
         db.create_all()
