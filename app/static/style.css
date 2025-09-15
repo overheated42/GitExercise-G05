@@ -156,8 +156,7 @@ header {
 /* ===== LOGIN & REGISTER FORM STYLES ===== */
 .login-bg,
 .register-bg 
-.forgot-bg,
-.reset-bg { 
+.forgot-bg { 
     flex: 1;
     display: flex;
     justify-content: center;
@@ -165,15 +164,16 @@ header {
     padding: 40px;
 }
 
-.login-form,
-.forgot-form,
-.reset-form  { 
+.login-form ,
+.forgot-form { 
     background: #fff;
     padding: 30px 25px;
     border-radius: 12px;
     box-shadow: 0 8px 16px rgba(0,0,0,0.2);
     width: 100%;
     max-width: 400px;
+    align-items: center;
+    justify-content: center;
 }
 
 .register-form { 
@@ -187,8 +187,7 @@ header {
 
 .login-bg h2, 
 .register-bg h2, 
-.forgot-bg h2,
-.reset-bg h2 { 
+.forgot-bg h2 { 
 
     text-align: center;
     margin-bottom: 20px;
@@ -207,7 +206,6 @@ header {
 /* Labels & Inputs */
 .login-form label ,
 .register-form label ,
-.reset-form label ,
 .forgot-form label { 
     display: block;
     margin-bottom: 6px;
@@ -219,7 +217,8 @@ header {
 .login-form input[type="password"] ,
 .register-form input[type="text"], 
 .register-form input[type="email"],
-.register-form input[type="password"] { 
+.register-form input[type="password"] ,
+.forgot-form input[type="email"] { 
     border-color: #004aad;
     width: 100%;
     padding: 5px;   /* 🔴 makes it tall */
@@ -238,7 +237,8 @@ header {
 
 /* Button */
 .login-form button,
-.register-form button { 
+.register-form button ,
+.forgot-form button { 
     width: 100%;
     padding: 12px;
     background: #004aad;
@@ -251,26 +251,30 @@ header {
 }
 
 .login-form button:hover,
-.register-form button:hover { 
+.register-form button:hover ,
+.forgot-form button:hover { 
     background: #003080;
 }
 
 /* Links */
 .login-bg p ,
-.register-bg p { 
+.register-bg p
+.forgot-bg p { 
     text-align: center;
     margin-top: 12px;
     font-size: 14px;
 }
 
 .login-bg a ,
-.register-bg a { 
+.register-bg a ,
+.forgot-bg a { 
     color: #004aad;
     text-decoration: none;
 }
 
 .login-bg a:hover,
-.register-bg a:hover { 
+.register-bg a:hover ,
+.forgot-bg a:hover { 
     text-decoration: underline;
 }
 
@@ -303,23 +307,31 @@ header {
 }
 
 /* ===== ACCOUNT MANAGEMENT PAGE ===== */
-.account-bg  {
-    justify-content: center; /* horizontal center */
+.account-bg {
+    display: flex;               /* enable flexbox */
+    flex-direction: column;      /* stack children vertically */
+    justify-content: center;     /* center vertically */
+    align-items: center;         /* center horizontally */
+    padding: 20px;               /* optional spacing */
+    background-color: #f8f9fa;   /* optional light background */
 }
+
 
 .account-bg h2 {
    text-align: center;
+    justify-content: center;
+    display:block;
     margin-bottom: 20px;
     color: #004aad;
 }
 
 .account-form {
     background: #fff;
-    padding: 40px 30px;
+    padding: 40px 50px;
     border-radius: 12px;
     box-shadow: 0 10px 25px rgba(0,0,0,0.15);
     width: 100%;
-    max-width: 450px;
+    max-width: 500px;
     display: flex;
     flex-direction: column;
     gap: 15px;
