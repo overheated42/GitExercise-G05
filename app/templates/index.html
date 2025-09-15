@@ -5,6 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <title>MMU HORIZON</title>
+
+     <!-- Leaflet CSS & JS -->
+     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+     <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.css" />
+     <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
 </head>
 <body>
     <header>
@@ -40,33 +45,19 @@
 
     <!-- Your main content will go here -->
     <main>
-        <!-- Add your page content here -->
+        <div id="map"></div>
     </main>
 
-    <div> 
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Campus Map</title>
-        <link rel="stylesheet" href="static/style.css">
       
-        <!-- Leaflet CSS & JS -->
-       <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
-       <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.css" />
-       <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
-       <link rel="stylesheet" href="static/style.css" />
-      </head>
-      <body>
-         
-    <div id="map"></div>
-      
-        <!-- Leaflet Routing Machine -->
-        <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-        <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
-        <script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.js"></script>
-        <script src="https://unpkg.com/leaflet-geometryutil"></script> <!-- helper -->
+     <!-- Leaflet Routing Machine -->
+     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+     <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
+     <script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.js"></script>
+     <script src="https://unpkg.com/leaflet-geometryutil"></script> <!-- helper -->
         
-        <script src="static/scripts.js"></script>
-    </div>
+     <script src="static/scripts.js"></script>
+    
       
-      <div id="map"></div>
+    
 </body>
 </html>
