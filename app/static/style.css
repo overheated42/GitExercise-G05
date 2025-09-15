@@ -155,7 +155,9 @@ header {
 
 /* ===== LOGIN & REGISTER FORM STYLES ===== */
 .login-bg,
-.register-bg { 
+.register-bg 
+.forgot-bg,
+.reset-bg { 
     flex: 1;
     display: flex;
     justify-content: center;
@@ -163,7 +165,9 @@ header {
     padding: 40px;
 }
 
-.login-form  { 
+.login-form,
+.forgot-form,
+.reset-form  { 
     background: #fff;
     padding: 30px 25px;
     border-radius: 12px;
@@ -182,7 +186,10 @@ header {
 }
 
 .login-bg h2, 
-.register-bg h2 { 
+.register-bg h2, 
+.forgot-bg h2,
+.reset-bg h2 { 
+
     text-align: center;
     margin-bottom: 20px;
     color: #004aad;
@@ -199,7 +206,9 @@ header {
 
 /* Labels & Inputs */
 .login-form label ,
-.register-form label { 
+.register-form label ,
+.reset-form label ,
+.forgot-form label { 
     display: block;
     margin-bottom: 6px;
     font-size: 14px;
