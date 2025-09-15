@@ -1,10 +1,10 @@
-from flask import Blueprint, render_template, request, jsonify, Flask, render_template, redirect, url_for, request, flash 
+from flask import Blueprint, render_template, request, jsonify, redirect, url_for, flash 
 import google.generativeai as genai
 import os
 from dotenv import load_dotenv  # For secure API key management
 from flask_login import login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
-from . import db, serializer
+from app import db, serializer
 from .models import User
 from .email_utils import send_email
 # Load environment variables
@@ -34,9 +34,6 @@ model = genai.GenerativeModel(
     generation_config=generation_config
 )
 
-@main.route('/')
-def home():
-    return render_template('index.html')
 
 @main.route('/chat', methods=['POST'])
 def chat():
