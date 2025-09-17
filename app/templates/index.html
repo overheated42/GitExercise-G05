@@ -73,6 +73,193 @@
         <h1>LOST IN MMU?</h1>
     </header>
 
+    <!-- Chatbox Container -->
+    <div class="chatbox-container">
+        <input type="checkbox" id="chatbox-toggle" class="chatbox-toggle">
+        
+        <!-- Chat Button (floating) -->
+        <label for="chatbox-toggle" class="chat-button">
+            <div class="chat-icon">💬</div>
+            <div class="close-icon">✕</div>
+        </label>
+
+        <!-- Chat Window -->
+        <div class="chat-window">
+            <div class="chat-header">
+                <h3>MMU AI Assistant</h3>
+                <label for="chatbox-toggle" class="chat-close">✕</label>
+            </div>
+            
+            <div class="chat-messages" id="chatMessages">
+                <div class="message ai-message">
+                    <div class="message-content">Hello! I'm your MMU AI assistant. I can help you with information about faculties, facilities, food options, and general campus queries. How can I help you today?</div>
+                </div>
+            </div>
+            
+            <div class="chat-input-container">
+                <form class="chat-form" id="chatForm" onsubmit="sendMessage(event)">
+                    <input type="text" class="chat-input" id="messageInput" name="message" placeholder="Type your message here..." required>
+                    <button type="submit" class="send-button" id="sendButton">Send</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Chat Overlay -->
+        <label for="chatbox-toggle" class="chat-overlay"></label>
+    </div>
+
+    <!-- Enhanced JavaScript for chat functionality -->
+    <script>
+        let isRequestInProgress = false;
+
+        function sendMessage(event) {
+            event.preventDefault();
+            
+            // Prevent multiple simultaneous requests
+            if (isRequestInProgress) return;
+            
+            const input = document.getElementById('messageInput');
+            const sendButton = document.getElementById('sendButton');
+            const message = input.value.trim();
+            
+            if (message === '') return;
+            
+            // Set request in progress
+            isRequestInProgress = true;
+            sendButton.disabled = true;
+            sendButton.textContent = 'Sending...';
+            
+            // Add user message to chat
+            const chatMessages = document.getElementById('chatMessages');
+            const userMessageDiv = document.createElement('div');
+            userMessageDiv.className = 'message user-message';
+            userMessageDiv.innerHTML = `<div class="message-content">${escapeHtml(message)}</div>`;
+            chatMessages.appendChild(userMessageDiv);
+            
+            // Clear input
+            input.value = '';
+            
+            // Show typing indicator
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'message ai-message typing-indicator';
+            typingDiv.id = 'typingIndicator';
+            typingDiv.innerHTML = `<div class="message-content">
+                <div class="typing-dots">
+                    <span></span><span></span><span></span>
+                </div>
+                AI is thinking...
+            </div>`;
+            chatMessages.appendChild(typingDiv);
+            
+            // Scroll to bottom
+            scrollToBottom();
+            
+            // Send message to server (supports both JSON and form data)
+            fetch('/chat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ message: message })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Remove typing indicator
+                const typingIndicator = document.getElementById('typingIndicator');
+                if (typingIndicator) {
+                    typingIndicator.remove();
+                }
+                
+                // Add AI response with proper HTML handling
+                const aiMessageDiv = document.createElement('div');
+                aiMessageDiv.className = 'message ai-message';
+                
+                // Handle potential HTML/markdown in response
+                const formattedResponse = formatAIResponse(data.response);
+                aiMessageDiv.innerHTML = `<div class="message-content">${formattedResponse}</div>`;
+                chatMessages.appendChild(aiMessageDiv);
+                
+                scrollToBottom();
+            })
+            .catch(error => {
+                console.error('Chat error:', error);
+                
+                // Remove typing indicator
+                const typingIndicator = document.getElementById('typingIndicator');
+                if (typingIndicator) {
+                    typingIndicator.remove();
+                }
+                
+                // Show appropriate error message
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'message ai-message error-message';
+                
+                let errorMessage = "Sorry, I'm having trouble connecting right now. Please try again in a moment.";
+                if (error.message.includes('500')) {
+                    errorMessage = "The AI service is temporarily unavailable. Our basic help system is still working - try asking about faculties, food, or facilities!";
+                } else if (error.message.includes('404')) {
+                    errorMessage = "Hmm, seems like there's a connection issue. Please refresh the page and try again.";
+                }
+                
+                errorDiv.innerHTML = `<div class="message-content">${errorMessage}</div>`;
+                chatMessages.appendChild(errorDiv);
+                
+                scrollToBottom();
+            })
+            .finally(() => {
+                // Reset button state
+                isRequestInProgress = false;
+                sendButton.disabled = false;
+                sendButton.textContent = 'Send';
+            });
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function formatAIResponse(response) {
+            // Basic formatting for better display
+            return response
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') // Bold
+                .replace(/\*(.*?)\*/g, '<em>$1</em>') // Italic
+                .replace(/\n\n/g, '<br><br>') // Paragraph breaks
+                .replace(/\n/g, '<br>') // Line breaks
+                .replace(/•/g, '•'); // Ensure bullets display correctly
+        }
+
+        function scrollToBottom() {
+            const chatMessages = document.getElementById('chatMessages');
+            setTimeout(() => {
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }, 100);
+        }
+
+        // Allow sending message with Enter key
+        document.getElementById('messageInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage(e);
+            }
+        });
+
+        // Auto-focus input when chat is opened
+        document.getElementById('chatbox-toggle').addEventListener('change', function(e) {
+            if (e.target.checked) {
+                setTimeout(() => {
+                    document.getElementById('messageInput').focus();
+                }, 300);
+            }
+        });
+    </script>
+
 
     <main>
         <div id="map"></div>

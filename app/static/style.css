@@ -527,6 +527,7 @@ header {
     transition: all 0.3s ease;
     overflow: hidden;
     z-index: 1003;
+    
 }
 
 /* Show chat window when toggle is checked */
@@ -786,7 +787,7 @@ header {
     border: 1px solid #ccc;
     border-radius: 3px;
     box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-    z-index: 1000;  /* make sure it's above the map */
+    z-index: 500;  /* make sure it's above the map */
   }
   #sidebar-overlay input[type="text"] {
     width: 100%;       /* match sidebar width */
