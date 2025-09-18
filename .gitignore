@@ -19,3 +19,6 @@ credentials.json
 token.pickle
 .env 
 app/.env 
+
+# Ignore RTF files
+*.rtf
