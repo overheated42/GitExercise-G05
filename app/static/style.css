@@ -821,5 +821,19 @@ header {
     z-index: 1;              /* map is underneath controls */
   }
   
-  
+  .dropdown-menu {
+    display: none; /* hide menu by default */
+    position: absolute;
+    background: #fff;
+    list-style: none;
+    padding: 0.5rem 0;
+    margin: 0;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    z-index: 1000;
+}
+
+.dropdown.open .dropdown-menu {
+    display: block; /* show menu when dropdown has "open" class */
+}
+
 
