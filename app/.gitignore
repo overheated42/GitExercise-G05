@@ -29,7 +29,6 @@ instance/
 # Environment variables
 .env
 *.env
-.env. local
 
 # PyInstaller / Build
 build/
@@ -41,11 +40,7 @@ dist/
 htmlcov/
 .pytest_cache/
 
-style.css
-style.css
-scripts.js
-style.css
-campus_paths.geojson
+
 __pycache__/
 *.pyc
 *.pyo
@@ -67,3 +62,4 @@ credentials.json
 token.pickle
 .env 
 app/.env 
+.env
