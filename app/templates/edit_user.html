@@ -7,7 +7,20 @@
     <h2 style="text-align:center;">Edit User</h2>
 
     <!-- Edit User Form -->
-    <form method="POST" style="display:flex; flex-direction:column; gap:15px; background:white; padding:20px; border-radius:10px; box-shadow:0 6px 15px rgba(0,0,0,0.1);">
+    <form method="POST" action="{{ url_for('admin.edit_user', user_id=user.id) }}" 
+          style="display:flex; flex-direction:column; gap:15px; background:white; padding:20px; border-radius:10px; box-shadow:0 6px 15px rgba(0,0,0,0.1);">
+
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <ul class="flashes">
+                    {% for category, message in messages %}
+                        <li class="flash {{ category }}">{{ message }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        {% endwith %}
+
         <label for="name">Name</label>
         <input type="text" id="name" name="name" value="{{ user.name }}" placeholder="Enter name" required>
 
@@ -19,6 +32,11 @@
             <option value="user" {% if user.role == 'user' %}selected{% endif %}>User</option>
             <option value="admin" {% if user.role == 'admin' %}selected{% endif %}>Admin</option>
         </select>
+
+        <label for="is_active">
+            <input type="checkbox" id="is_active" name="is_active" {% if user.is_active %}checked{% endif %}>
+            Active
+        </label>
 
         <button type="submit" style="background:#004aad; color:white; padding:10px; border:none; border-radius:6px; cursor:pointer;">
             Save Changes

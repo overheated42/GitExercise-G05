@@ -57,14 +57,39 @@ def edit_user(user_id):
     user = User.query.get_or_404(user_id)
 
     if request.method == "POST":
-        user.name = request.form.get("name")
-        user.email = request.form.get("email")
-        user.role = request.form.get("role")
-        user.is_active = bool(request.form.get("is_active")) if hasattr(user, "is_active") else True
-        db.session.commit()
-        flash("User updated successfully!", "success")
-        return redirect(url_for("admin.users"))
+        # Get form data
+        name = request.form.get("name", "").strip()
+        email = request.form.get("email", "").strip()
+        role = request.form.get("role", "").strip()
+        is_active = True if request.form.get("is_active") == "on" else False
 
+        # Validation
+        if not name:
+            flash("Name is required.", "danger")
+            return render_template("edit_user.html", user=user)
+        if not email:
+            flash("Email is required.", "danger")
+            return render_template("edit_user.html", user=user)
+        if role not in ["admin", "user"]:
+            flash("Invalid role selected.", "danger")
+            return render_template("edit_user.html", user=user)
+
+        # Update user
+        user.name = name
+        user.email = email
+        user.role = role
+        user.is_active = is_active
+
+        try:
+            db.session.commit()
+            flash("User updated successfully!", "success")
+            return redirect(url_for("admin.users"))
+        except Exception as e:
+            db.session.rollback()
+            flash(f"Error updating user: {str(e)}", "danger")
+            return render_template("edit_user.html", user=user)
+
+    # GET request
     return render_template("edit_user.html", user=user)
 
 
