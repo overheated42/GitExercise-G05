@@ -29,6 +29,7 @@ instance/
 # Environment variables
 .env
 *.env
+.env
 
 # PyInstaller / Build
 build/
