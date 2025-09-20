@@ -19,7 +19,7 @@
     },
     {
       "type": "Feature",
-      "properties": { "name": "Faculty of Computing and Informatics" },
+      "properties": { "name": "Faculty of Computing and Informatics (FCI)" },
       "geometry": {
         "type": "Point",
         "coordinates": [101.6410095807574, 2.928680020013035]
@@ -27,7 +27,7 @@
     },
     {
       "type": "Feature",
-      "properties": { "name": "Faculty of Management" },
+      "properties": { "name": "Faculty of Management (FOM)" },
       "geometry": {
         "type": "Point",
         "coordinates": [ 101.64123634592652, 2.9297125872433063]
@@ -35,7 +35,7 @@
     },
     {
       "type": "Feature",
-      "properties": { "name": "Dewan Tun Canselor" },
+      "properties": { "name": "Dewan Tun Canselor (DTC)" },
       "geometry": {
         "type": "Point",
         "coordinates": [101.64203980693222, 2.9293473695705146]
@@ -43,7 +43,7 @@
     },
     {
       "type": "Feature",
-      "properties": { "name": "Faculty of Engineering" },
+      "properties": { "name": "Faculty of Artificial Intelligence & Engineering (FAIE)" },
       "geometry": {
         "type": "Point",
         "coordinates": [101.64115771069797, 2.92642464400397]
@@ -59,7 +59,7 @@
     },
     {
       "type": "Feature",
-      "properties": { "name": "Faculty of Creative Multimedia" },
+      "properties": { "name": "Faculty of Creative Multimedia (FCM)" },
       "geometry": {
         "type": "Point",
         "coordinates": [101.64267253083617, 2.9261590322885573]
@@ -67,7 +67,7 @@
     },
     {
       "type": "Feature",
-      "properties": { "name": "Central Lecture Complex" },
+      "properties": { "name": "Central Lecture Complex (CLC)" },
       "geometry": {
         "type": "Point",
         "coordinates": [101.6423122732111, 2.9276774225188236]
@@ -147,7 +147,7 @@
     },
     {
       "type": "Feature",
-      "properties": { "name": "Multipurpose Hall" },
+      "properties": { "name": "Multipurpose Hall (MPH)" },
       "geometry": {
         "type": "Point",
         "coordinates": [101.64232157865686, 2.92817347947485]

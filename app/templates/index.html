@@ -73,6 +73,7 @@
                 
                 <!-- Submenu Items -->
                 <div class="submenu">
+                    <a href="#hostel">Hostel</a>
                     <a href="{{ url_for('auth.account') }}">Account</a>
                     <a href="{{ url_for('auth.logout') }}">Logout</a>
                 </div>
@@ -84,6 +85,11 @@
 
         <h1>LOST IN MMU?</h1>
     </header>
+
+    <!-- Your main content will go here -->
+    <main>
+        <!-- Add your page content here -->
+    </main>
 
     <!-- Chatbox Container -->
     <div class="chatbox-container">
@@ -271,27 +277,5 @@
             }
         });
     </script>
-
-
-    <main>
-        <div id="map"></div>
-        <div id="sidebar-overlay">
-            <input type="text" id="searchInput" placeholder="Search">
-            <div id="suggestionBox"></div>
-            <div id="route-info" style="display:none;"></div> 
-          </div>
-    </main>
-
-      
-     <!-- Leaflet Routing Machine -->
-     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-     <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
-     <script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.js"></script>
-     <script src="https://unpkg.com/leaflet-geometryutil"></script> <!-- helper -->
-        
-     <script src="static/scripts.js"></script>
-    
-      
-    
 </body>
 </html>

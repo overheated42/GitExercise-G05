@@ -7,6 +7,8 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from app import db, serializer
 from .models import User
 from .email_utils import send_email
+from .auth import auth_bp
+from .admin import admin_bp
 # Load environment variables
 load_dotenv()
 

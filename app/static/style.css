@@ -171,6 +171,57 @@ header {
   }
 
 
+/* ===== DROPDOWN STYLING INSIDE HAMBURGER ===== */ /*THAD*/
+.nav-menu .dropdown {
+    border-bottom: 1px solid #fbfbfb;
+  }
+  
+  .nav-menu .dropdown-toggle {
+    display: block;
+    padding: 15px 25px;
+    font-weight: 600;
+    font-size: 16px;
+    color: #000000;
+    cursor: pointer;
+    background: #ffffff;
+    transition: all 0.25s ease-in-out;
+  }
+  
+  .nav-menu .dropdown-toggle:hover {
+    background: #fffcfc;
+    color: #0078ff;
+    padding-left: 35px;
+  }
+  
+  .nav-menu .dropdown-menu {
+    display: none;
+    list-style: none;
+    padding-left: 20px;
+    margin: 0;
+    background: #f0f0f0;
+  }
+  
+  .nav-menu .dropdown.open .dropdown-menu {
+    display: block;
+  }
+  
+  .nav-menu .dropdown-menu li a {
+    display: block;
+    padding: 12px 25px;
+    font-size: 14px;
+    color: #444;
+    text-decoration: none;
+    border-bottom: 1px solid #eee;
+    transition: all 0.2s ease-in-out;
+  }
+  
+  .nav-menu .dropdown-menu li a:hover {
+    background: #f5f5f5;
+    color: #0078ff;
+    padding-left: 40px;
+  }
+
+
 /* Overlay for closing menu when clicking outside */
 .menu-overlay {
     position: fixed;
@@ -233,6 +284,18 @@ header {
     box-shadow: 0 8px 16px rgba(0,0,0,0.2);
     width: 100%;
     max-width: 500px;
+}
+
+.forgot-bg {
+    display: flex;               /* enable flexbox */
+    padding: 30px 25px;
+    flex-direction: column;      /* stack children vertically */
+    align-items: center;         /* center horizontally */
+    background-color: #fff;   /* optional light background */
+    max-width: 400px;
+    margin: 20px auto;              /* center horizontally */
+    border-radius: 12px;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.2);
 }
 
 .forgot-bg {
@@ -445,6 +508,27 @@ header {
 /* PLACEHOLDER STYLE */
 .account-form input::placeholder {
     color: #999;
+}
+
+.delete-account-container {
+    margin-top: 20px;
+    padding: 10px;
+    border: 1px solid #f44336;
+    border-radius: 5px;
+    background-color: #ffe6e6;
+}
+
+.delete-button {
+    background-color: #f44336;
+    color: white;
+    padding: 8px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.delete-button:hover {
+    background-color: #d32f2f;
 }
 
 /* ===== CHATBOX STYLES ===== */

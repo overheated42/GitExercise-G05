@@ -29,6 +29,7 @@ instance/
 # Environment variables
 .env
 *.env
+.env
 
 # PyInstaller / Build
 build/
@@ -63,3 +64,5 @@ token.pickle
 .env 
 app/.env 
 .env
+
+__pycache__/

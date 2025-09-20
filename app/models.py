@@ -7,6 +7,8 @@ class User(UserMixin, db.Model):
     email = db.Column(db.String(150), unique=True, nullable=False)
     username = db.Column(db.String(150), unique=True, nullable=False)
     password = db.Column(db.String(200), nullable=False)
+    role = db.Column(db.String(10), default="user")  # 'user' or 'admin'
+    is_active = db.Column(db.Boolean, default=True)  # <--- make it a real column
 
 @login_manager.user_loader
 def load_user(user_id):
