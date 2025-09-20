@@ -64,5 +64,5 @@ token.pickle
 .env 
 app/.env 
 .env
-
 __pycache__/
+.venv/

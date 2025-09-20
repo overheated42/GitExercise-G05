@@ -438,53 +438,93 @@ var customRouter = {
 // ============================
 // User Tracking (Snapped to Route)
 // ============================
-function updateUserPosition(lat, lng) {
+let navigationMode = false; // free explore by default
+let lastLatLng = null;
+
+function updateUserPosition(lat, lng, heading) {
   let latlng = L.latLng(lat, lng);
 
-  // If a route exists, snap to nearest point on it
+  // Snap to route if exists
   let snapped = (routeLine) ? snapToPolyline(latlng, [routeLine]) : latlng;
 
-  if(!userMarker){
+  if (!userMarker) {
+    // Create arrow marker with id for rotation
     const arrowIcon = L.divIcon({ 
-      html: `<div style="color:#780606; font-size:25px;">➤</div>`,
+      html: `<div id="arrow" style="color:#780606; font-size:25px;">➤</div>`,
       className: "user-arrow",
       iconSize: [30, 30],
-      iconAnchor: [15, 15] // center of the div (adjust so the tip matches GPS point)
+      iconAnchor: [15, 15]
     });
-    userMarker = L.marker(snapped, {icon: arrowIcon}).addTo(map)
 
+    userMarker = L.marker(snapped, { icon: arrowIcon }).addTo(map);
+
+    // Tooltip only first time
     let tooltip = userMarker.bindTooltip("You are here", {
       permanent: true,
       direction: "top",
       offset: [0, -10]
     }).openTooltip();
-    
-    // Hide after 5 seconds
-    setTimeout(() => {
-      userMarker.unbindTooltip();
-    }, 5000);
+
+    setTimeout(() => { userMarker.unbindTooltip(); }, 5000);
+
   } else {
     userMarker.setLatLng(snapped);
+
+    // Rotate arrow if heading available
+    const arrowEl = document.getElementById("arrow");
+    if (arrowEl) {
+      if (heading != null) {
+        arrowEl.style.transform = `rotate(${heading}deg)`;
+      } else if (lastLatLng) {
+        // fallback: calculate heading from movement
+        let dx = snapped.lng - lastLatLng.lng;
+        let dy = snapped.lat - lastLatLng.lat;
+        let calcHeading = Math.atan2(dx, dy) * 180 / Math.PI;
+        arrowEl.style.transform = `rotate(${calcHeading}deg)`;
+      }
+    }
   }
 
-  // Smooth follow
-  map.setView(snapped, map.getZoom(), { animate: true });
+  lastLatLng = snapped; // store for next movement
+
+  // Handle map behavior
+  if (navigationMode) {
+    // Always follow & zoom
+    map.setView(snapped, 18, { animate: true });
+
+    // Rotate map itself if heading exists
+    if (heading != null) {
+      const mapContainer = map.getContainer();
+      mapContainer.style.transform = `rotate(${-heading}deg)`;
+    }
+  }
 
   // Auto-update route if destination exists
-  if(userMarker && currentDestMarker) {
+  if (userMarker && currentDestMarker) {
     customRouter.route(
       [
-        { latLng: snapped },  // use snapped position
+        { latLng: snapped },
         { latLng: currentDestMarker.getLatLng() }
       ],
       function(err, routes) {
-        if(!err) {
-          if(routeLine) map.removeLayer(routeLine);
+        if (!err) {
+          if (routeLine) map.removeLayer(routeLine);
           routeLine = L.polyline(routes[0].coordinates, { color: 'blue', weight: 5 }).addTo(map);
         }
       }
     );
   }
+}
+
+// Call this when user searches & clicks a place
+function startNavigation() {
+  navigationMode = true;
+}
+
+// Call this to stop navigation (let user explore freely)
+function stopNavigation() {
+  navigationMode = false;
+  map.getContainer().style.transform = ""; // reset rotation
 }
 
 // ============================
