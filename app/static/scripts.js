@@ -27,7 +27,7 @@ fetch("static/campus_paths.geojson")
 .then(res => res.json())
 .then(data => {
   var campusLayer = L.geoJSON(data, { 
-    style: { color: "red", weight: 2, dashArray: '2,4' } 
+    style: { color: "red", weight: 2, dashArray: '2,4', opacity: 0.25 } 
   }).addTo(map);
 
   campusLayer.eachLayer(l => { 
