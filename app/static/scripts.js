@@ -523,10 +523,10 @@ function stopNavigation() {
 // ============================
 // Recenter Button
 // ============================
-const recenterBtn = L.control({ position: "bottomright" });
+const recenterBtn = L.control({ position: "topleft" });
 
 recenterBtn.onAdd = function(map) {
-  let btn = L.DomUtil.create("button", "recenter-btn");
+  let btn = L.DomUtil.create("button", "recenter-button");
   btn.innerHTML = "📍";
 
   btn.onclick = () => {
