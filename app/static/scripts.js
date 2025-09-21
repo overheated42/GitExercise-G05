@@ -521,6 +521,32 @@ function stopNavigation() {
 }
 
 // ============================
+// Recenter Button
+// ============================
+const recenterBtn = L.control({ position: "bottomright" });
+
+recenterBtn.onAdd = function(map) {
+  let btn = L.DomUtil.create("button", "recenter-btn");
+  btn.innerHTML = "📍";
+
+  btn.onclick = () => {
+    navigationMode = true; // turn auto-follow back on
+    if (userMarker) {
+      map.setView(userMarker.getLatLng(), 18, { animate: true });
+    }
+  };
+
+  return btn;
+};
+recenterBtn.addTo(map);
+
+// Detect when user manually drags/zooms → stop auto-follow
+map.on("dragstart zoomstart", () => {
+  navigationMode = false;
+});
+
+
+// ============================
 // Detect Geolocation or fallback to fixed campus center
 // ============================
 const CAMPUS_CENTER = { lat: 2.92795, lng: 101.64216 }; // your campus center
