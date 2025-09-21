@@ -278,6 +278,11 @@ function initCampusSearch() {
 
 document.getElementById("startBtn").addEventListener("click", () => {
   startNavigation(); // enable auto-follow
+
+  if (userMarker) {
+    map.setView(userMarker.getLatLng(), 19); // zoom level ~19 is good for walking
+  }
+  
   document.getElementById("start-btn-container").style.display = "none"; // hide button once started
 });
 
