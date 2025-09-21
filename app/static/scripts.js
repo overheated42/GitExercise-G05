@@ -268,11 +268,18 @@ function initCampusSearch() {
             Distance: ${(route.summary.totalDistance / 1000).toFixed(2)} km<br>
             Time: ${Math.round(route.summary.totalTime / 60)} min
           `;
+          // Show "Start Walking" button
+          document.getElementById("start-btn-container").style.display = "block";
         }
       }
     );
   }
 }
+
+document.getElementById("startBtn").addEventListener("click", () => {
+  startNavigation(); // enable auto-follow
+  document.getElementById("start-btn-container").style.display = "none"; // hide button once started
+});
 
 // ============================
 // Build Graph from Campus Paths
@@ -618,8 +625,11 @@ document.addEventListener("DOMContentLoaded", () => {
                       routeLine = L.polyline(route.coordinates, { color: '#00BFFF', weight: 5 }).addTo(map);
                       map.fitBounds(routeLine.getBounds());
       
-              // ✅ Update distance/time info 
-                updateRouteInfo(route, link.textContent);
+                    // ✅ Update distance/time info 
+                    updateRouteInfo(route, link.textContent);
+
+                     // ✅ Show Start Walking button
+                    document.getElementById("start-btn-container").style.display = "block";
                       
                     }
                   }
