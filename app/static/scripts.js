@@ -487,17 +487,11 @@ function updateUserPosition(lat, lng, heading) {
 
   lastLatLng = snapped; // store for next movement
 
-  // Handle map behavior
-  if (navigationMode) {
-    // Always follow & zoom
+   //Only recenter if auto-follow is ON
+   if (navigationMode) {
     map.setView(snapped, 18, { animate: true });
-
-    // Rotate map itself if heading exists
-    if (heading != null) {
-      const mapContainer = map.getContainer();
-      mapContainer.style.transform = `rotate(${-heading}deg)`;
-    }
   }
+
 
   // Auto-update route if destination exists
   if (userMarker && currentDestMarker) {
@@ -524,7 +518,6 @@ function startNavigation() {
 // Call this to stop navigation (let user explore freely)
 function stopNavigation() {
   navigationMode = false;
-  map.getContainer().style.transform = ""; // reset rotation
 }
 
 // ============================
