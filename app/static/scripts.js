@@ -282,7 +282,7 @@ document.getElementById("startBtn").addEventListener("click", () => {
   if (userMarker) {
     map.setView(userMarker.getLatLng(), 19); // zoom level ~19 is good for walking
   }
-  
+
   document.getElementById("start-btn-container").style.display = "none"; // hide button once started
 });
 
@@ -562,21 +562,37 @@ map.on("dragstart zoomstart", () => {
 // Detect Geolocation or fallback to fixed campus center
 // ============================
 const CAMPUS_CENTER = { lat: 2.92795, lng: 101.64216 }; // your campus center
+let firstLocationUpdate = true; // track first GPS update
 
 if ("geolocation" in navigator) {
     navigator.geolocation.watchPosition(
         (pos) => {
-            updateUserPosition(pos.coords.latitude, pos.coords.longitude);
+          const lat = pos.coords.latitude;
+          const lng = pos.coords.longitude;
+
+          updateUserPosition(lat, lng);
+          
+            // Zoom only the first time we get location
+            if (firstLocationUpdate) {
+              map.setView([lat, lng], 18, { animate: true });
+              firstLocationUpdate = false;
+            }
         },
         (err) => {
             console.warn("GPS failed, using fixed campus center:", err.message);
             updateUserPosition(CAMPUS_CENTER.lat, CAMPUS_CENTER.lng);
+
+            if (firstLocationUpdate) {
+              map.setView([CAMPUS_CENTER.lat, CAMPUS_CENTER.lng], 17);
+              firstLocationUpdate = false;
+          }
         },
         { enableHighAccuracy: true }
     );
 } else {
     console.warn("No geolocation support, using fixed campus center");
     updateUserPosition(CAMPUS_CENTER.lat, CAMPUS_CENTER.lng);
+    map.setView([CAMPUS_CENTER.lat, CAMPUS_CENTER.lng], 17);
 }
 
 
