@@ -897,7 +897,7 @@ header {
   
   /* Map sits next to sidebar */
   #map {
-    height: 500px;
+    height: 700px;
     width: 100%;
     border: 1px solid #ccc;
     border-radius: 6px;
