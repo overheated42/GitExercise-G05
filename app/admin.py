@@ -1,8 +1,12 @@
 # admin.py
-from flask import Blueprint, render_template, redirect, url_for, flash, request
+from flask import Blueprint, render_template, redirect, url_for, flash, request, current_app
 from flask_login import login_required, current_user
 from app import db
-from .models import User
+from .models import User , Visit, Location
+import json
+from sqlalchemy import func
+import os
+
 
 admin_bp = Blueprint("admin", __name__, url_prefix="/admin")
 
@@ -118,3 +122,72 @@ def toggle_active(user_id):
         db.session.commit()
         flash(f"User {'activated' if user.is_active else 'deactivated'} successfully!", "success")
     return redirect(url_for("admin.users"))
+
+from datetime import date
+from .models import PageView
+
+@admin_bp.route("/analytics")
+@admin_required
+def analytics():
+    today = date.today()
+
+    # -------------------
+    # 1️⃣ Load campus GeoJSON
+    # -------------------
+    geojson_path = os.path.join(current_app.root_path, "static", "campus_places.geojson")
+    campus_geojson = {}
+    total_locations = 0
+    categories = {"Faculty": 0, "Food": 0, "Facility": 0, "Other": 0}
+
+    if os.path.exists(geojson_path):
+        with open(geojson_path, "r", encoding="utf-8") as f:
+            campus_geojson = json.load(f)
+
+        total_locations = len(campus_geojson.get("features", []))
+        for feature in campus_geojson.get("features", []):
+            name = feature["properties"].get("name", "").lower()
+            if "faculty" in name:
+                categories["Faculty"] += 1
+            elif any(x in name for x in ["cafe", "restaurant", "restoran", "bistro"]):
+                categories["Food"] += 1
+            elif any(x in name for x in ["hall", "library", "surau", "stad", "office", "building", "complex"]):
+                categories["Facility"] += 1
+            else:
+                categories["Other"] += 1
+
+    # -------------------
+    # 2️⃣ Most visited locations
+    # -------------------
+    most_visited = (
+        db.session.query(Location.name, func.count(Visit.id).label("visits"))
+        .join(Visit)
+        .group_by(Location.id)
+        .order_by(func.count(Visit.id).desc())
+        .all()
+    )
+
+    # -------------------
+    # 3️⃣ Active users
+    # -------------------
+    active_users = User.query.filter_by(is_active=True).count()
+
+    # -------------------
+    # 4️⃣ Page views today
+    # -------------------
+    pageviews_today = (
+        db.session.query(PageView.page, func.count(PageView.id).label("views"))
+        .filter(PageView.view_date == today)
+        .group_by(PageView.page)
+        .all()
+    )
+
+    return render_template(
+        "analytics.html",
+        total_locations=total_locations,
+        categories=categories,
+        campus_geojson=campus_geojson,
+        most_visited=most_visited,
+        active_users=active_users,
+        pageviews_today=pageviews_today,
+        today=today
+    )

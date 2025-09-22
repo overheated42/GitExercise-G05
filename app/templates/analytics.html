@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Analytics - Admin Dashboard</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  
+  <!-- Leaflet CSS & JS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+  <style>
+    #map { height: 400px; margin-top: 20px; }
+    .card { padding: 20px; margin: 20px; border-radius: 8px; box-shadow: 0 0 5px rgba(0,0,0,0.1); background: #fff; }
+  </style>
+</head>
+<body class="admin">
+
+  <!-- Sidebar -->
+  <div class="admin-sidebar">
+    <h2 style="text-align:center;">Admin Panel</h2>
+    <a href="{{ url_for('admin.dashboard') }}">Dashboard</a>
+    <a href="{{ url_for('admin.users') }}">User Management</a>
+    <a href="{{ url_for('admin.analytics') }}">Analytics</a>
+    <a href="{{ url_for('auth.logout') }}">Logout</a>
+  </div>
+
+  <!-- Header -->
+  <div class="admin-header">Analytics | MMU Lost in MMU?</div>
+
+  <!-- Content -->
+  <div class="card">
+    <h3>Active Users</h3>
+    <p>{{ active_users }}</p>
+  </div>
+
+  <div class="card">
+    <h3>Total Locations</h3>
+    <p>{{ total_locations }}</p>
+  </div>
+
+  <div class="card">
+    <h3>Most Visited Locations</h3>
+    <canvas id="mostVisitedChart"></canvas>
+  </div>
+
+  <div class="card">
+    <h3>Pageviews Today ({{ today }})</h3>
+    <canvas id="pageviewsChart"></canvas>
+  </div>
+
+  <div class="card">
+    <h3>Campus Map</h3>
+    <div id="map"></div>
+  </div>
+
+<script>
+  // Most Visited Locations Chart
+  const ctxVisits = document.getElementById("mostVisitedChart").getContext("2d");
+  new Chart(ctxVisits, {
+    type: "bar",
+    data: {
+      labels: {{ most_visited | map(attribute=0) | list | tojson }},
+      datasets: [{
+        label: "Number of Visits",
+        data: {{ most_visited | map(attribute=1) | list | tojson }},
+        backgroundColor: "rgba(54, 162, 235, 0.6)"
+      }]
+    },
+    options: { responsive: true, scales: { y: { beginAtZero: true } } }
+  });
+
+  // Pageviews Today Chart
+  const ctxPageviews = document.getElementById("pageviewsChart").getContext("2d");
+  new Chart(ctxPageviews, {
+    type: "bar",
+    data: {
+      labels: {{ pageviews_today | map(attribute=0) | list | tojson }},
+      datasets: [{
+        label: "Pageviews Today",
+        data: {{ pageviews_today | map(attribute=1) | list | tojson }},
+        backgroundColor: "rgba(255, 159, 64, 0.6)"
+      }]
+    },
+    options: { responsive: true, scales: { y: { beginAtZero: true } } }
+  });
+
+  // Leaflet Map
+  const map = L.map('map'); // don't setView here, we'll fit bounds
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap contributors'
+  }).addTo(map);
+
+  const campusGeoJSON = {{ campus_geojson | tojson }};
+  const campusLayer = L.geoJSON(campusGeoJSON).addTo(map);
+
+  // Fit map to campus bounds and restrict panning
+  const campusBounds = campusLayer.getBounds();
+  map.fitBounds(campusBounds);
+  map.setMaxBounds(campusBounds);
+
+  // Optional: add markers for most visited locations
+  {% for location_name, count in most_visited %}
+    {% set loc = campus_geojson.features | selectattr('properties.name','equalto',location_name) | first %}
+    {% if loc %}
+      L.marker([{{ loc.geometry.coordinates[1] }}, {{ loc.geometry.coordinates[0] }}])
+        .addTo(map)
+        .bindPopup("{{ location_name }}: {{ count }} visits");
+    {% endif %}
+  {% endfor %}
+</script>
+
+
+    
+</body>
+</html>

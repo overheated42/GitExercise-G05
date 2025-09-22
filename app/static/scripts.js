@@ -27,7 +27,7 @@ fetch("static/campus_paths.geojson")
 .then(res => res.json())
 .then(data => {
   var campusLayer = L.geoJSON(data, { 
-    style: { color: "red", weight: 2, dashArray: '2,4' } 
+    style: { color: "red", weight: 2, dashArray: '2,4', opacity: 0.25 } 
   }).addTo(map);
 
   campusLayer.eachLayer(l => { 
@@ -52,24 +52,85 @@ fetch("static/campus_places.geojson")
   initCampusSearch();
 });
 
-// ============================
-// Snap to nearest polyline point
-// ============================
+// -----------------------------
+// Helpers: flatten, key, projection
+// -----------------------------
+function flattenLatLngs(latlngs) {
+  // recursion in case getLatLngs() returns nested arrays (multilines)
+  let out = [];
+  latlngs.forEach(l => {
+    if (Array.isArray(l)) out.push(...flattenLatLngs(l));
+    else out.push(l);
+  });
+  return out;
+}
+
+function key(latlng) {
+  return latlng.lat.toFixed(6) + "," + latlng.lng.toFixed(6);
+}
+
+// treat lat/lng as planar for small campus area: project p onto segment a-b
+function projectPointOnSegment(p, a, b) {
+  const px = p.lng, py = p.lat;
+  const ax = a.lng, ay = a.lat;
+  const bx = b.lng, by = b.lat;
+  const dx = bx - ax, dy = by - ay;
+  if (dx === 0 && dy === 0) return L.latLng(ay, ax);
+  let t = ((px - ax) * dx + (py - ay) * dy) / (dx * dx + dy * dy);
+  t = Math.max(0, Math.min(1, t));
+  const projX = ax + t * dx;
+  const projY = ay + t * dy;
+  return L.latLng(projY, projX);
+}
+
+// -----------------------------
+// Improved snap: nearest point ON a segment + its segment endpoints
+// returns null or { point, a, b, pl }
+// -----------------------------
 function snapToPolyline(latlng, polylines) {
-  let closestPoint = null;
-  let minDist = Infinity;
+  let best = { dist: Infinity, point: null, a: null, b: null, pl: null };
 
   polylines.forEach(pl => {
-    pl.getLatLngs().forEach(p => {
-      let dist = latlng.distanceTo(p);
-      if(dist < minDist) {
-        minDist = dist;
-        closestPoint = p;
+    let latlngs = flattenLatLngs(pl.getLatLngs());
+    for (let i = 0; i < latlngs.length - 1; i++) {
+      const a = latlngs[i], b = latlngs[i + 1];
+      const proj = projectPointOnSegment(latlng, a, b);
+      const dist = latlng.distanceTo(proj); // uses Leaflet haversine - fine for campus
+      if (dist < best.dist) {
+        best = { dist, point: proj, a: a, b: b, pl: pl };
       }
-    });
+    }
   });
 
-  return closestPoint;
+  return best.point ? best : null;
+}
+
+
+// -----------------------------
+// Build graph (slightly hardened: flatten coordinates, avoid duplicate edges)
+// -----------------------------
+function buildGraphFromPolylines(polylines) {
+  let graph = {};
+
+  function addEdge(aLatLng, bLatLng, dist) {
+    const a = key(aLatLng), b = key(bLatLng);
+    if (!graph[a]) graph[a] = {};
+    if (!graph[b]) graph[b] = {};
+    // keep smallest if multiple edges between same nodes
+    graph[a][b] = Math.min(graph[a][b] || Infinity, dist);
+    graph[b][a] = Math.min(graph[b][a] || Infinity, dist);
+  }
+
+  polylines.forEach(pl => {
+    let coords = flattenLatLngs(pl.getLatLngs());
+    for (let i = 0; i < coords.length - 1; i++) {
+      let a = coords[i], b = coords[i + 1];
+      let dist = a.distanceTo(b);
+      addEdge(a, b, dist);
+    }
+  });
+
+  return graph;
 }
 
 // ============================
@@ -184,11 +245,23 @@ function initCampusSearch() {
             Distance: ${(route.summary.totalDistance / 1000).toFixed(2)} km<br>
             Time: ${Math.round(route.summary.totalTime / 60)} min
           `;
+          // Show "Start Walking" button
+          document.getElementById("start-btn-container").style.display = "block";
         }
       }
     );
   }
 }
+
+document.getElementById("startBtn").addEventListener("click", () => {
+  startNavigation(); // enable auto-follow
+
+  if (userMarker) {
+    map.setView(userMarker.getLatLng(), 19); // zoom level ~19 is good for walking
+  }
+
+  document.getElementById("start-btn-container").style.display = "none"; // hide button once started
+});
 
 // ============================
 // Build Graph from Campus Paths
@@ -218,7 +291,9 @@ function buildGraphFromPolylines(polylines) {
   return graph;
 }
 
+// ============================
 // Dijkstra’s Algorithm
+// ============================
 function dijkstra(graph, startKey, endKey) {
   let distances = {};
   let prev = {};
@@ -262,50 +337,76 @@ function dijkstra(graph, startKey, endKey) {
 // ============================
 // Polyline Distance Helper
 // ============================
-function polylineDistance(coords) {
-  let total = 0;
-  for (let i = 1; i < coords.length; i++) {
-    total += coords[i - 1].distanceTo(coords[i]);
+function polylineDistance(latlngs) {
+  let dist = 0;
+  for (let i = 1; i < latlngs.length; i++) {
+    dist += latlngs[i - 1].distanceTo(latlngs[i]);
   }
-  return total; // meters
+  return dist;
 }
 
 // ============================
-// Custom Router with Dijkstra
+// Custom Router with Dijkstra + Snap Points
 // ============================
 var customRouter = {
   route: function(waypoints, callback) {
     let start = waypoints[0].latLng;
     let end = waypoints[1].latLng;
 
+    // build graph from red campus polylines
+    let graph = buildGraphFromPolylines(campusPolylines);
+
+    // snap start & end to nearest points on campus polylines
     let startSnap = snapToPolyline(start, campusPolylines);
     let endSnap = snapToPolyline(end, campusPolylines);
 
     if (!startSnap || !endSnap) {
-      return callback("No nearby campus paths found", null);
+      return callback("No nearby path found", null);
+    }
+    // helper: add snapped point into the graph as a new node
+    function insertSnapNode(snapObj) {
+      const snapKey = key(snapObj.point);
+      if (graph[snapKey]) return; // already inserted
+
+      const aKey = key(snapObj.a);
+      const bKey = key(snapObj.b);
+
+      if (!graph[aKey]) graph[aKey] = {};
+      if (!graph[bKey]) graph[bKey] = {};
+
+      const da = snapObj.point.distanceTo(snapObj.a);
+      const db = snapObj.point.distanceTo(snapObj.b);
+
+      graph[snapKey] = {};
+      graph[snapKey][aKey] = da;
+      graph[aKey][snapKey] = da;
+
+      graph[snapKey][bKey] = db;
+      graph[bKey][snapKey] = db;
     }
 
-    let graph = buildGraphFromPolylines(campusPolylines);
-    let startKey = startSnap.lat.toFixed(6) + "," + startSnap.lng.toFixed(6);
-    let endKey = endSnap.lat.toFixed(6) + "," + endSnap.lng.toFixed(6);
+    // insert the snapped start and end into graph
+    insertSnapNode(startSnap);
+    insertSnapNode(endSnap);
 
+    // run Dijkstra
+    let startKey = key(startSnap.point);
+    let endKey = key(endSnap.point);
     let pathKeys = dijkstra(graph, startKey, endKey);
-    if (pathKeys.length === 0) {
-      return callback("No path found", null);
-    }
 
-    // Convert keys back to LatLngs
+    // convert keys back into Leaflet LatLng
     let coords = pathKeys.map(k => {
       let [lat, lng] = k.split(",").map(Number);
       return L.latLng(lat, lng);
     });
 
-    // Add exact start/end
+    // force exact start & end positions in the polyline
     if (!coords[0].equals(start)) coords.unshift(start);
     if (!coords[coords.length - 1].equals(end)) coords.push(end);
 
     let totalDist = polylineDistance(coords);
 
+    // return result
     callback(null, [{
       name: "Campus Route",
       coordinates: coords,
@@ -322,50 +423,75 @@ var customRouter = {
 };
 
 
+
 // ============================
 // User Tracking (Snapped to Route)
 // ============================
-function updateUserPosition(lat, lng) {
+let navigationMode = false; // free explore by default
+let lastLatLng = null;
+
+function updateUserPosition(lat, lng, heading) {
   let latlng = L.latLng(lat, lng);
 
-  // If a route exists, snap to nearest point on it
+  // Snap to route if exists
   let snapped = (routeLine) ? snapToPolyline(latlng, [routeLine]) : latlng;
 
-  if(!userMarker){
+  if (!userMarker) {
+    // Create arrow marker with id for rotation
     const arrowIcon = L.divIcon({ 
-      html: `<div style="color:#780606; font-size:25px;">➤</div>`,
+      html: `<div id="arrow" style="color:#780606; font-size:25px;">➤</div>`,
       className: "user-arrow",
-      iconSize: [30, 30]
+      iconSize: [30, 30],
+      iconAnchor: [25, 15]
     });
-    userMarker = L.marker(snapped, {icon: arrowIcon}).addTo(map)
 
+    userMarker = L.marker([snapped.lat, snapped.lng], { icon: arrowIcon }).addTo(map);
+
+    // Tooltip only first time
     let tooltip = userMarker.bindTooltip("You are here", {
       permanent: true,
       direction: "top",
       offset: [0, -10]
     }).openTooltip();
-    
-    // Hide after 5 seconds
-    setTimeout(() => {
-      userMarker.unbindTooltip();
-    }, 5000);
+
+    setTimeout(() => { userMarker.unbindTooltip(); }, 5000);
+
   } else {
-    userMarker.setLatLng(snapped);
+    userMarker.setLatLng([snapped.lat, snapped.lng]);
+    
+    // Rotate arrow if heading available
+    const arrowEl = document.getElementById("arrow");
+    if (arrowEl) {
+      if (heading != null) {
+        arrowEl.style.transform = `rotate(${heading}deg)`;
+      } else if (lastLatLng) {
+        // fallback: calculate heading from movement
+        let dx = snapped.lng - lastLatLng.lng;
+        let dy = snapped.lat - lastLatLng.lat;
+        let calcHeading = Math.atan2(dx, dy) * 180 / Math.PI;
+        arrowEl.style.transform = `rotate(${calcHeading}deg)`;
+      }
+    }
   }
 
-  // Smooth follow
-  map.setView(snapped, map.getZoom(), { animate: true });
+  lastLatLng = snapped; // store for next movement
+
+   //Only recenter if auto-follow is ON
+   if (navigationMode) {
+    map.setView(snapped, 18, { animate: true });
+  }
+
 
   // Auto-update route if destination exists
-  if(userMarker && currentDestMarker) {
+  if (userMarker && currentDestMarker) {
     customRouter.route(
       [
-        { latLng: snapped },  // use snapped position
+        { latLng: snapped },
         { latLng: currentDestMarker.getLatLng() }
       ],
       function(err, routes) {
-        if(!err) {
-          if(routeLine) map.removeLayer(routeLine);
+        if (!err) {
+          if (routeLine) map.removeLayer(routeLine);
           routeLine = L.polyline(routes[0].coordinates, { color: 'blue', weight: 5 }).addTo(map);
         }
       }
@@ -373,25 +499,77 @@ function updateUserPosition(lat, lng) {
   }
 }
 
+// Call this when user searches & clicks a place
+function startNavigation() {
+  navigationMode = true;
+}
+
+// Call this to stop navigation (let user explore freely)
+function stopNavigation() {
+  navigationMode = false;
+}
+
+// ============================
+// Recenter Button
+// ============================
+const recenterBtn = L.control({ position: "topleft" });
+
+recenterBtn.onAdd = function(map) {
+  let btn = L.DomUtil.create("button", "recenter-button");
+  btn.innerHTML = "📍";
+
+  btn.onclick = () => {
+    navigationMode = true; // turn auto-follow back on
+    if (userMarker) {
+      map.setView(userMarker.getLatLng(), 18, { animate: true });
+    }
+  };
+
+  return btn;
+};
+recenterBtn.addTo(map);
+
+// Detect when user manually drags/zooms → stop auto-follow
+map.on("dragstart zoomstart", () => {
+  navigationMode = false;
+});
+
+
 // ============================
 // Detect Geolocation or fallback to fixed campus center
 // ============================
 const CAMPUS_CENTER = { lat: 2.92795, lng: 101.64216 }; // your campus center
+let firstLocationUpdate = true; // track first GPS update
 
 if ("geolocation" in navigator) {
     navigator.geolocation.watchPosition(
         (pos) => {
-            updateUserPosition(pos.coords.latitude, pos.coords.longitude);
+          const lat = pos.coords.latitude;
+          const lng = pos.coords.longitude;
+
+          updateUserPosition(lat, lng);
+          
+            // Zoom only the first time we get location
+            if (firstLocationUpdate) {
+              map.setView([lat, lng], 18, { animate: true });
+              firstLocationUpdate = false;
+            }
         },
         (err) => {
             console.warn("GPS failed, using fixed campus center:", err.message);
             updateUserPosition(CAMPUS_CENTER.lat, CAMPUS_CENTER.lng);
+
+            if (firstLocationUpdate) {
+              map.setView([CAMPUS_CENTER.lat, CAMPUS_CENTER.lng], 17);
+              firstLocationUpdate = false;
+          }
         },
         { enableHighAccuracy: true }
     );
 } else {
     console.warn("No geolocation support, using fixed campus center");
     updateUserPosition(CAMPUS_CENTER.lat, CAMPUS_CENTER.lng);
+    map.setView([CAMPUS_CENTER.lat, CAMPUS_CENTER.lng], 17);
 }
 
 
@@ -445,8 +623,11 @@ document.addEventListener("DOMContentLoaded", () => {
                       routeLine = L.polyline(route.coordinates, { color: '#00BFFF', weight: 5 }).addTo(map);
                       map.fitBounds(routeLine.getBounds());
       
-              // ✅ Update distance/time info 
-                updateRouteInfo(route, link.textContent);
+                    // ✅ Update distance/time info 
+                    updateRouteInfo(route, link.textContent);
+
+                     // ✅ Show Start Walking button
+                    document.getElementById("start-btn-container").style.display = "block";
                       
                     }
                   }
