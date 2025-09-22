@@ -106,29 +106,6 @@ function snapToPolyline(latlng, polylines) {
 }
 
 
-map.on('locationfound', function(e) {
-  let rawPos = e.latlng;
-  let snap = snapToPolyline(rawPos, campusPolylines);
-  let userPos = snap ? snap.point : rawPos;
-
-  // Pass userPos into the router as the starting waypoint
-  L.Routing.control({
-    waypoints: [
-      userPos,
-      destination
-    ],
-    router: customRouter,
-    createMarker: () => null
-  }).addTo(map);
-
-  // Update the arrow marker
-  if (!userMarker) {
-    userMarker = L.marker(userPos, { icon: arrowIcon }).addTo(map);
-  } else {
-    userMarker.setLatLng(userPos);
-  }
-});
-
 // -----------------------------
 // Build graph (slightly hardened: flatten coordinates, avoid duplicate edges)
 // -----------------------------
@@ -465,10 +442,10 @@ function updateUserPosition(lat, lng, heading) {
       html: `<div id="arrow" style="color:#780606; font-size:25px;">➤</div>`,
       className: "user-arrow",
       iconSize: [30, 30],
-      iconAnchor: [15, 15]
+      iconAnchor: [25, 15]
     });
 
-    userMarker = L.marker(snapped, { icon: arrowIcon }).addTo(map);
+    userMarker = L.marker([snapped.lat, snapped.lng], { icon: arrowIcon }).addTo(map);
 
     // Tooltip only first time
     let tooltip = userMarker.bindTooltip("You are here", {
@@ -480,8 +457,8 @@ function updateUserPosition(lat, lng, heading) {
     setTimeout(() => { userMarker.unbindTooltip(); }, 5000);
 
   } else {
-    userMarker.setLatLng(snapped);
-
+    userMarker.setLatLng([snapped.lat, snapped.lng]);
+    
     // Rotate arrow if heading available
     const arrowEl = document.getElementById("arrow");
     if (arrowEl) {
