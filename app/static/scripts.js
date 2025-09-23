@@ -430,11 +430,15 @@ var customRouter = {
 let navigationMode = false; // free explore by default
 let lastLatLng = null;
 
-function updateUserPosition(lat, lng, heading) {
-  let latlng = L.latLng(lat, lng);
+function updateUserPosition(lat, lng, heading, snap = true) {
+  let raw = L.latLng(lat, lng);
+
 
   // Snap to route if exists
-  let snapped = (routeLine) ? snapToPolyline(latlng, [routeLine]) : latlng;
+  let snappedObj = (routeLine) ? snapToPolyline(raw, [routeLine]) : null;
+  let snapped = (snappedObj && raw.distanceTo(snappedObj.point) < 15) 
+                  ? snappedObj.point 
+                  : raw; // only snap if within 15m, else use raw GPS
 
   if (!userMarker) {
     // Create arrow marker with id for rotation
@@ -464,12 +468,23 @@ function updateUserPosition(lat, lng, heading) {
     if (arrowEl) {
       if (heading != null) {
         arrowEl.style.transform = `rotate(${heading}deg)`;
-      } else if (lastLatLng) {
-        // fallback: calculate heading from movement
+      } else if (lastLatLng && !snapped.equals(lastLatLng)) {
         let dx = snapped.lng - lastLatLng.lng;
         let dy = snapped.lat - lastLatLng.lat;
-        let calcHeading = Math.atan2(dx, dy) * 180 / Math.PI;
-        arrowEl.style.transform = `rotate(${calcHeading}deg)`;
+        let calcHeading = Math.atan2(dy, dx) * 180 / Math.PI;
+
+        let newHeading = calcHeading; // Define newHeading here
+        
+        // Normalize rotation: avoid spinning across -180 / 180 boundary
+        if (typeof currentHeading === "undefined") {
+          currentHeading = newHeading; // first time, just set it
+          }
+          let diff = newHeading - currentHeading;
+          if (diff > 180) diff -= 360;
+          if (diff < -180) diff += 360;
+          currentHeading += diff; // apply the smallest turn
+
+        arrowEl.style.transform = `translate(-50%, -50%) rotate(${calcHeading}deg)`;
       }
     }
   }
@@ -481,15 +496,14 @@ function updateUserPosition(lat, lng, heading) {
     map.setView(snapped, 18, { animate: true });
   }
 
-
   // Auto-update route if destination exists
   if (userMarker && currentDestMarker) {
     customRouter.route(
-      [
+       [
         { latLng: snapped },
         { latLng: currentDestMarker.getLatLng() }
       ],
-      function(err, routes) {
+      (err, routes) => {
         if (!err) {
           if (routeLine) map.removeLayer(routeLine);
           routeLine = L.polyline(routes[0].coordinates, { color: 'blue', weight: 5 }).addTo(map);
@@ -546,8 +560,8 @@ if ("geolocation" in navigator) {
         (pos) => {
           const lat = pos.coords.latitude;
           const lng = pos.coords.longitude;
-
-          updateUserPosition(lat, lng);
+          const heading = pos.coords.heading ?? null;
+          updateUserPosition(lat, lng, heading);
           
             // Zoom only the first time we get location
             if (firstLocationUpdate) {
@@ -557,19 +571,105 @@ if ("geolocation" in navigator) {
         },
         (err) => {
             console.warn("GPS failed, using fixed campus center:", err.message);
-            updateUserPosition(CAMPUS_CENTER.lat, CAMPUS_CENTER.lng);
-
+            updateUserPosition(CAMPUS_CENTER.lat, CAMPUS_CENTER.lng ,null);
             if (firstLocationUpdate) {
               map.setView([CAMPUS_CENTER.lat, CAMPUS_CENTER.lng], 17);
               firstLocationUpdate = false;
           }
+          if (!simulateMode) {
+            console.log("Starting simulation because GPS is unavailable.");
+            startSimulation();
+          }
         },
-        { enableHighAccuracy: true }
+        { enableHighAccuracy: true, maximumAge: 0, timeout: Infinity }
     );
 } else {
     console.warn("No geolocation support, using fixed campus center");
-    updateUserPosition(CAMPUS_CENTER.lat, CAMPUS_CENTER.lng);
+    updateUserPosition(CAMPUS_CENTER.lat, CAMPUS_CENTER.lng ,null);
     map.setView([CAMPUS_CENTER.lat, CAMPUS_CENTER.lng], 17);
+
+  if (!simulateMode) {
+    startSimulation();
+  }
+}
+
+
+// ============================
+// For testing on laptop without GPS
+// ============================
+let simulateMode = false;
+let simulateIndex = 0;
+let simulateInterval = null;
+
+function startSimulation() {
+  if (!routeLine) {
+    alert("No route found! Please generate a walking route first.");
+    return;
+  }
+  simulateMode = true;
+  const coords = routeLine.getLatLngs();
+
+  simulateIndex = 0;
+  clearInterval(simulateInterval);
+
+  // Move every 50ms for smooth animation
+  simulateInterval = setInterval(() => {
+    if (simulateIndex >= coords.length - 1) {
+      stopSimulation();
+      return;
+    }
+
+    let current = coords[simulateIndex];
+    let next = coords[simulateIndex + 1];
+
+    // Break the movement into small steps (like 20 steps between points)
+    let steps = 20;
+    let stepCount = 0;
+
+    let latStep = (next.lat - current.lat) / steps;
+    let lngStep = (next.lng - current.lng) / steps;
+
+    function moveStep() {
+      if (stepCount >= steps) {
+        simulateIndex++;
+        return;
+      }
+
+      let lat = current.lat + latStep * stepCount;
+      let lng = current.lng + lngStep * stepCount;
+
+      // calculate heading (bearing)
+      let dx = next.lng - current.lng;
+      let dy = next.lat - current.lat;
+      let heading = Math.atan2(dx, dy) * 180 / Math.PI;
+
+      updateUserPosition(lat, lng, heading);
+
+      stepCount++;
+      requestAnimationFrame(moveStep);
+    }
+
+    moveStep();
+  }, 1000); // process next segment every second
+}
+
+function stopSimulation() {
+  simulateMode = false;
+  clearInterval(simulateInterval);
+  simulateIndex = 0;
+}
+
+const simulateBtn = document.getElementById("simulateBtn");
+if (simulateBtn) {
+  simulateBtn.addEventListener("click", () => {
+    if (!simulateMode) {
+      startSimulation();
+      simulateBtn.innerText = "⏹ Stop Simulation";
+    } else {
+      stopSimulation();
+      simulateBtn.innerText = "🚶 Simulate Walk";
+    }
+  });
 }
 
 

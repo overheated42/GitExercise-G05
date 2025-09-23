@@ -927,6 +927,10 @@ header {
   .recenter-button:hover {
     background: #f0f0f0;
   }
+
+  .user-arrow #arrow {
+    transition: transform 0.4s linear;
+  }
   
   
 
