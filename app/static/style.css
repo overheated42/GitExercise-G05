@@ -853,11 +853,10 @@ header {
     max-height: 85vh;
     border-radius: 20px;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-    overflow: hidden;
-    transform: scale(0.8) translateY(20px);
-    transition: all 0.3s ease;
-    position: relative;
+    display: block;
+    overflow-y: auto;   /* ✅ scroll entire modal */
 }
+
 
 .modal-overlay.active .modal-content {
     transform: scale(1) translateY(0);
@@ -865,15 +864,16 @@ header {
 
 /* Modal Header */
 .modal-header {
-    position: relative;
-    height: 250px;
+    height: 350px; /* ✅ bigger so it feels like a header */
     background: linear-gradient(135deg, #2c3e50, #3498db);
     color: white;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
     text-align: center;
-    overflow: hidden;
+    padding: 40px 20px;
+    position: relative;
 }
 
 .modal-header::before {
@@ -935,8 +935,7 @@ header {
 /* Modal Body */
 .modal-body {
     padding: 40px;
-    max-height: 400px;
-    overflow-y: auto;
+    background: #fff;
 }
 
 .info-section {
