@@ -177,7 +177,7 @@ def get_enhanced_fallback_response(message):
         
         **Study Break Suggestions:**
         • Grab a meal at Food Street for brain fuel 🧠
-        • Quick coffee run to Starbees ☕
+        • Quick coffee run to He & She Cafe ☕
         • Stretch your legs around campus 🚶‍♀️"""
     
     # Handle budget-conscious requests  
