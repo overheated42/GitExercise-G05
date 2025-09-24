@@ -429,6 +429,7 @@ var customRouter = {
 // ============================
 let navigationMode = false; // free explore by default
 let lastLatLng = null;
+let snapped;
 
 function updateUserPosition(lat, lng, heading, snap = true) {
   let raw = L.latLng(lat, lng);
@@ -443,12 +444,13 @@ function updateUserPosition(lat, lng, heading, snap = true) {
   if (!userMarker) {
     // Create arrow marker with id for rotation
     const arrowIcon = L.divIcon({ 
-      html: `<div id="arrow" style="color:#780606; font-size:25px;">➤</div>`,
-      className: "user-arrow",
-      iconSize: [30, 30],
-      iconAnchor: [25, 15]
+      html: `<div id="arrow" class="user-circle"></div>`,
+      className: "", // don't let Leaflet override with its default
+      iconSize: [20, 20],
+      iconAnchor: [10, 10] // center of circle
     });
 
+    console.log("Marker at:", snapped.lat, snapped.lng);
     userMarker = L.marker([snapped.lat, snapped.lng], { icon: arrowIcon }).addTo(map);
 
     // Tooltip only first time
@@ -463,28 +465,10 @@ function updateUserPosition(lat, lng, heading, snap = true) {
   } else {
     userMarker.setLatLng([snapped.lat, snapped.lng]);
     
-    // Rotate arrow if heading available
+    // Keeping the cirle in the center
     const arrowEl = document.getElementById("arrow");
     if (arrowEl) {
-      if (heading != null) {
-        arrowEl.style.transform = `rotate(${heading}deg)`;
-      } else if (lastLatLng && !snapped.equals(lastLatLng)) {
-        let dx = snapped.lng - lastLatLng.lng;
-        let dy = snapped.lat - lastLatLng.lat;
-        let calcHeading = Math.atan2(dy, dx) * 180 / Math.PI;
-
-        let newHeading = calcHeading; // Define newHeading here
-        
-        // Normalize rotation: avoid spinning across -180 / 180 boundary
-        if (typeof currentHeading === "undefined") {
-          currentHeading = newHeading; // first time, just set it
-          }
-          let diff = newHeading - currentHeading;
-          if (diff > 180) diff -= 360;
-          if (diff < -180) diff += 360;
-          currentHeading += diff; // apply the smallest turn
-
-        arrowEl.style.transform = `translate(-50%, -50%) rotate(${calcHeading}deg)`;
+      arrowEl.style.transform = "translate(-50%, -50%)"; // keep it centered
       }
     }
   }
@@ -511,7 +495,6 @@ function updateUserPosition(lat, lng, heading, snap = true) {
       }
     );
   }
-}
 
 // Call this when user searches & clicks a place
 function startNavigation() {

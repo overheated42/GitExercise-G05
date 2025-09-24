@@ -928,9 +928,19 @@ header {
     background: #f0f0f0;
   }
 
-  .user-arrow #arrow {
-    transition: transform 0.4s linear;
+  .user-circle {
+    width: 20px;
+    height: 20px;
+    background: #780606; /* red */
+    border-radius: 50%;
+    border: 3px solid white;
+    transform: translate(-50%, -50%);
+    box-shadow: 0 0 6px rgba(0,0,0,0.4);
   }
-  
+
+  .user-circle {
+    position: relative;
+    z-index: 9999;
+  }
   
 
