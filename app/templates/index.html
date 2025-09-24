@@ -270,85 +270,56 @@
           </div>
     </main>
 
-    <!-- FCI Information Modal -->
-    <div class="modal-overlay" id="fciModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <div class="modal-header-content">
-                    <h2>Faculty of Computing and Informatics</h2>
-                    <p>Shaping the Future of Technology</p>
-                </div>
-                <button class="close-button" onclick="closeFCIModal()">&times;</button>
+<!-- Single Faculty Modal -->
+<div class="modal-overlay" id="facultyModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <div class="modal-header-content">
+                <h2 id="facultyTitle">Faculty Name</h2>
+                <p id="facultySubtitle">Faculty Subtitle</p>
             </div>
-            
-            <div class="modal-body">
-                <div class="info-section">
-                    <h3>About FCI</h3>
-                    <p>The Faculty of Computing and Informatics (FCI) at Multimedia University is a leading institution in technology education, dedicated to producing innovative and skilled graduates in the fields of computing, software engineering, and information systems.</p>
-                    <p>Established with a vision to advance technological innovation, FCI combines theoretical knowledge with practical application, ensuring our students are industry-ready and equipped with cutting-edge skills.</p>
-                </div>
-
-                <div class="info-section">
-                    <h3>Programs Offered</h3>
-                    <div class="programs-grid">
-                        <div class="program-card">
-                            <h4>🖥️ Bachelor of Computer Science</h4>
-                            <p>Comprehensive program covering algorithms, data structures, AI, and machine learning.</p>
-                        </div>
-                        <div class="program-card">
-                            <h4>💻 Software Engineering</h4>
-                            <p>Focuses on designing and developing software systems with innovative methodologies and sophisticated tools. Students are exposed to various techniques of analysing user requirements and specifications, as well as the design, implementation and verification of software system.</p>
-                        </div>
-                        <div class="program-card">
-                            <h4>🔒 Cybersecurity</h4>
-                            <p>Built on the technical foundation of computer science, the specialization focuses on the array of sophisticated techniques and innovative approaches used to protect data and information systems. Students are exposed to both offensive and defensive security methodologies such as ethical hacking, digital forensics and network security, as well as policies and ethical issues of cybersecurity.</p>
-                        </div>
-                        <div class="program-card">
-                            <h4>📊 Data Science</h4>
-                            <p>Drawing upon the technical foundation of computer science, this specialization focuses on designing and developing solutions to extract valuable insights from data. Students are exposed with fundamental theories in data science as well as hands-on experience in building practical solutions.</p>
-                        </div>
-                        <div class="program-card">
-                            <h4>📱 Game Development</h4>
-                            <p>Integrates fundamental concepts of software engineering with both technical and creative aspects of game design and development. Students are exposed to various types of game production – from 2D to 3D, and from virtual to augmented reality game projects.</p>
-                        </div>
-                        <div class="program-card">
-                            <h4>🌐 Information Systems</h4>
-                            <p>Business applications, database management, and enterprise solutions.</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="info-section">
-                    <h3>Facilities & Highlights</h3>
-                    <p>• <strong>State-of-the-art computer labs</strong> with latest hardware and software</p>
-                    <p>• <strong>Research centers</strong> for AI, cybersecurity, and data analytics</p>
-                    <p>• <strong>Industry partnerships</strong> providing internship and career opportunities</p>
-                    <p>• <strong>Innovation labs</strong> for student projects and startup incubation</p>
-                    <p>• <strong>Experienced faculty</strong> with industry and academic expertise</p>
-                </div>
-
-                <div class="contact-info">
-                    <h4>📍 Contact Information</h4>
-                    <p><strong>Location:</strong> FCI Building, MMU Cyberjaya Campus</p>
-                    <p><strong>Office Hours:</strong> Monday - Friday, 8:00 AM - 5:00 PM</p>
-                    <p><strong>Email:</strong> fci@mmu.edu.my</p>
-                    <p><strong>Phone:</strong> +603-8312-5000</p>
-                </div>
-
-                <div class="action-buttons">
-                    <button class="btn btn-primary" onclick="navigateToFCI()">
-                        🗺️ Get Directions
-                    </button>
-                    <button class="btn btn-secondary" onclick="viewPrograms()">
-                        📚 View All Programs
-                    </button>
-                    <button class="btn btn-secondary" onclick="contactFCI()">
-                        📞 Contact FCI
-                    </button>
-                </div>
-            </div>
+            <button class="close-button" onclick="closeFacultyModal()">&times;</button>
+        </div>
+        
+        <div class="modal-body" id="facultyContent">
+            <!-- Content will be dynamically inserted here -->
         </div>
     </div>
+</div>
+
+<!-- Food & Beverage Modal -->
+<div class="modal-overlay" id="foodModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <div class="modal-header-content">
+                <h2 id="foodTitle">Food Place Name</h2>
+                <p id="foodSubtitle">Food Description</p>
+            </div>
+            <button class="close-button" onclick="closeFoodModal()">&times;</button>
+        </div>
+        
+        <div class="modal-body" id="foodContent">
+            <!-- Content will be dynamically inserted here -->
+        </div>
+    </div>
+</div>
+
+<!-- Facilities Modal -->
+<div class="modal-overlay" id="facilityModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <div class="modal-header-content">
+                <h2 id="facilityTitle">Facility Name</h2>
+                <p id="facilitySubtitle">Facility Description</p>
+            </div>
+            <button class="close-button" onclick="closeFacilityModal()">&times;</button>
+        </div>
+        
+        <div class="modal-body" id="facilityContent">
+            <!-- Content will be dynamically inserted here -->
+        </div>
+    </div>
+</div>
 
      <!-- Leaflet Routing Machine -->
      <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
