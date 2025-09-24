@@ -1,55 +1,63 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Manage Users</title>
+    <meta charset="UTF-8">
+    <title>Admin Dashboard</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-<body>
-    <h1>Users</h1>
+<body class="admin">
 
+    <!-- Sidebar -->
+    <div class="admin-sidebar">
+        <h2 style="text-align:center;">Admin Panel</h2>
+        <a href="{{ url_for('admin.dashboard') }}">Dashboard</a>
+        <a href="{{ url_for('admin.users') }}">User Management</a>
+        <a href="{{ url_for('admin.analytics') }}">Analytics</a>
+        <a href="{{ url_for('auth.logout') }}">Logout</a>
+    </div>
+
+    <!-- Header -->
+    <div class="admin-header">
+        Welcome, Admin | Site: MMU Lost in MMU?
+    </div>
+
+    <!-- Search Form -->
     <form method="get" action="{{ url_for('admin.users') }}">
         <input type="text" name="q" placeholder="Search..." value="{{ search_query }}">
         <button type="submit">Search</button>
     </form>
 
-    <table border="1" cellpadding="5" cellspacing="0">
+    <!-- User Management Table -->
+    <h2 id="users">User Management</h2>
+    <table>
         <thead>
             <tr>
                 <th>ID</th>
                 <th>Name</th>
-                <th>Username</th>
                 <th>Email</th>
                 <th>Role</th>
-                <th>Status</th>
                 <th>Actions</th>
             </tr>
         </thead>
         <tbody>
             {% for user in users %}
             <tr>
-    <td>{{ user.id }}</td>
-    <td>{{ user.name }}</td>
-    <td>{{ user.username }}</td>
-    <td>{{ user.email }}</td>
-    <td>{{ user.role }}</td>
-    <td>{{ 'Active' if user.is_active | default(True) else 'Inactive' }}</td>
-    <td>
-        <a href="{{ url_for('admin.edit_user', user_id=user.id) }}">Edit</a>
-        <form method="post" action="{{ url_for('admin.delete_user', user_id=user.id) }}" style="display:inline;">
-            <button type="submit" onclick="return confirm('Delete this user?')">Delete</button>
-        </form>
-        {% if user.is_active is defined %}
-        <form method="post" action="{{ url_for('admin.toggle_active', user_id=user.id) }}" style="display:inline;">
-            <button type="submit">{{ 'Deactivate' if user.is_active else 'Activate' }}</button>
-        </form>
-        {% endif %}
-    </td>
-</tr>
-
+                <td>{{ user.username }}</td>
+                <td>{{ user.name }}</td>
+                <td>{{ user.email }}</td>
+                <td>{{ user.role }}</td>
+                <td>
+                    <a href="{{ url_for('admin.edit_user', user_id=user.id) }}" class="btn btn-edit">Edit</a>
+                    <a href="{{ url_for('admin.delete_user', user_id=user.id) }}" class="btn btn-delete" onclick="return confirm('Are you sure?')">Delete</a>
+                </td>
+            </tr>
             {% endfor %}
         </tbody>
     </table>
 
+    <br>
     <a href="{{ url_for('admin.dashboard') }}">Back to Dashboard</a>
 </body>
 </html>

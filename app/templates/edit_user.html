@@ -1,7 +1,36 @@
-{% extends "base.html" %}
-{% block title %}Edit User{% endblock %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Analytics - Admin Dashboard</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  
+  <!-- Leaflet CSS & JS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
-{% block content %}
+  <style>
+    #map { height: 400px; margin-top: 20px; }
+    .card { padding: 20px; margin: 20px; border-radius: 8px; box-shadow: 0 0 5px rgba(0,0,0,0.1); background: #fff; }
+  </style>
+</head>
+<body class="admin">
+
+  <!-- Sidebar -->
+  <div class="admin-sidebar">
+    <h2 style="text-align:center;">Admin Panel</h2>
+    <a href="{{ url_for('admin.dashboard') }}">Dashboard</a>
+    <a href="{{ url_for('admin.users') }}">User Management</a>
+    <a href="{{ url_for('admin.analytics') }}">Analytics</a>
+    <a href="{{ url_for('auth.logout') }}">Logout</a>
+  </div>
+
+  <!-- Header -->
+  <div class="admin-header">Analytics | MMU Lost in MMU?</div>
+
 <div class="edit-user-container">
     <h2 class="edit-user-title">Edit User</h2>
 
@@ -21,6 +50,9 @@
 
         <label for="name">Name</label>
         <input type="text" id="name" name="name" value="{{ user.name }}" placeholder="Enter name" required>
+
+        <label for="username">Username</label>
+        <input type="username" id="username" name="username" value="{{ user.username }}" placeholder="Enter username" required>
 
         <label for="email">Email</label>
         <input type="email" id="email" name="email" value="{{ user.email }}" placeholder="Enter email" required>
@@ -51,4 +83,6 @@
         <a href="{{ url_for('admin.dashboard') }}">Back to Admin Dashboard</a>
     </p>
 </div>
-{% endblock %}
+   
+</body>
+</html>

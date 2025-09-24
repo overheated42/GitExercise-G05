@@ -2,13 +2,23 @@
 from flask import Blueprint, render_template, redirect, url_for, flash, request, current_app
 from flask_login import login_required, current_user
 from app import db
-from .models import User , Visit, Location
+from .models import User , Visit, Location , ActivityLog , PageView
 import json
-from sqlalchemy import func
+from sqlalchemy import func, Date, cast
 import os
+from datetime import datetime, date, timedelta, time
 
+with open("app/static/campus_places.geojson") as f:  
+    campus_places = json.load(f)
 
 admin_bp = Blueprint("admin", __name__, url_prefix="/admin")
+
+def log_activity(action, user=None):
+    entry = ActivityLog(action=action)
+    if user:
+        entry.user = user
+    db.session.add(entry)
+    db.session.commit()
 
 # -------------------
 # ADMIN ACCESS DECORATOR
@@ -29,11 +39,52 @@ def admin_required(func):
 @admin_bp.route("/dashboard")
 @admin_required
 def dashboard():
+    log_activity("Viewed Admin Dashboard", user=current_user)
+
     users = User.query.all()
     total_users = len(users)
     active_users = User.query.filter_by(is_active=True).count() if hasattr(User, "is_active") else total_users
-    return render_template("admin_dashboard.html", users=users, total_users=total_users)
 
+    popular_locations = (
+        db.session.query(Location.name, func.count(Visit.id).label("visits"))
+        .join(Visit)
+        .group_by(Location.id)
+        .order_by(func.count(Visit.id).desc())
+        .limit(3)
+        .all()
+    )
+    popular_locations = [loc[0] for loc in popular_locations]
+
+    # Fetch last 10 activities
+    recent_activities = ActivityLog.query.order_by(ActivityLog.timestamp.desc()).limit(10).all()
+
+    today = datetime.utcnow().date()
+    seven_days_ago = today - timedelta(days=6)
+
+    user_growth = (
+        db.session.query(func.date(User.created_at), func.count(User.id))
+        .filter(User.created_at >= seven_days_ago)
+        .group_by(func.date(User.created_at))
+        .all()
+    )
+
+    # Format into dict {date: count}
+    growth_dict = {str(date): count for date, count in user_growth}
+
+    labels = [(seven_days_ago + timedelta(days=i)).strftime("%a") for i in range(7)]  # Mon, Tue...
+    data = [growth_dict.get(str(seven_days_ago + timedelta(days=i)), 0) for i in range(7)]
+
+
+    return render_template(
+        "admin_dashboard.html",
+        users=users,
+        total_users=total_users,
+        active_users=active_users,
+        recent_activities=recent_activities,
+        popular_locations=popular_locations,
+        growth_labels=json.dumps(labels),   # ✅ Pass to JS safely
+        growth_data=json.dumps(data)
+    )
 # -------------------
 # USER LIST (with search)
 # -------------------
@@ -86,6 +137,7 @@ def edit_user(user_id):
 
         try:
             db.session.commit()
+            log_activity(f"Edited user {user.username}", user=current_user)
             flash("User updated successfully!", "success")
             return redirect(url_for("admin.users"))
         except Exception as e:
@@ -106,6 +158,7 @@ def delete_user(user_id):
     user = User.query.get_or_404(user_id)
     db.session.delete(user)
     db.session.commit()
+    log_activity(f"Deleted user {user.username}", user=current_user)
     flash("User deleted successfully!", "success")
     return redirect(url_for("admin.dashboard"))
 
@@ -121,6 +174,7 @@ def toggle_active(user_id):
         user.is_active = not user.is_active
         db.session.commit()
         flash(f"User {'activated' if user.is_active else 'deactivated'} successfully!", "success")
+        log_activity(f"{'Activated' if user.is_active else 'Deactivated'} user {user.username}", user=current_user)
     return redirect(url_for("admin.users"))
 
 from datetime import date
@@ -129,7 +183,11 @@ from .models import PageView
 @admin_bp.route("/analytics")
 @admin_required
 def analytics():
+    log_activity("Viewed Analytics Page", user=current_user)
+
     today = date.today()
+    start = datetime.combine(today, time.min)  # 00:00:00
+    end = datetime.combine(today, time.max)    
 
     # -------------------
     # 1️⃣ Load campus GeoJSON
@@ -176,18 +234,48 @@ def analytics():
     # -------------------
     pageviews_today = (
         db.session.query(PageView.page, func.count(PageView.id).label("views"))
-        .filter(PageView.view_date == today)
+        .filter(PageView.timestamp >= start, PageView.timestamp <= end)
         .group_by(PageView.page)
         .all()
     )
+
+    page_labels = [p[0] for p in pageviews_today]
+    page_counts = [p[1] for p in pageviews_today]
 
     return render_template(
         "analytics.html",
         total_locations=total_locations,
         categories=categories,
         campus_geojson=campus_geojson,
+        campus_places=campus_geojson,  
         most_visited=most_visited,
         active_users=active_users,
         pageviews_today=pageviews_today,
+        page_labels=page_labels,       # ✅ new
+        page_counts=page_counts,       # ✅ new
         today=today
     )
+
+@admin_bp.route("/log_visit", methods=["POST"])
+def log_visit():
+    data = request.get_json()
+    location_name = data.get("location")
+
+    if not location_name:
+        return jsonify({"error": "No location provided"}), 400
+
+    # find or create the location in DB
+    location = Location.query.filter_by(name=location_name).first()
+    if not location:
+        location = Location(name=location_name)
+        db.session.add(location)
+        db.session.commit()
+
+    # log visit
+    visit = Visit(user_id=current_user.id if current_user.is_authenticated else None,
+                  location_id=location.id,
+                  timestamp=datetime.utcnow())
+    db.session.add(visit)
+    db.session.commit()
+
+    return jsonify({"message": "Visit logged"}), 200
