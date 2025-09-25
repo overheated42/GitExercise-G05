@@ -904,7 +904,6 @@ header {
     position: relative;      /* allows UI elements to be positioned above */
     z-index: 1;              /* map is underneath controls */
   }
-
   .recenter-button {
     position: absolute;        /* lets you position it anywhere inside the parent */
     top: 7px;                 /* distance from the top of the container */
@@ -927,5 +926,7 @@ header {
   .recenter-button:hover {
     background: #f0f0f0;
   }
+
+  
 
 

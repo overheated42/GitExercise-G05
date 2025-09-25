@@ -512,7 +512,7 @@ function updateUserPosition(lat, lng, heading, snap = true) {
       (err, routes) => {
         if (!err) {
           if (routeLine) map.removeLayer(routeLine);
-          routeLine = L.polyline(routes[0].coordinates, { color: 'blue', weight: 5 }).addTo(map);
+          routeLine = L.polyline(routes[0].coordinates, { color: '#00BFFF', weight: 5 }).addTo(map);
         }
       }
     );
