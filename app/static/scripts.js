@@ -1,3 +1,5 @@
+//THAD PART
+
 // ============================
 // Initialize Map
 // ============================
@@ -213,6 +215,15 @@ function initCampusSearch() {
     // Replace destination marker
     if (currentDestMarker) map.removeLayer(currentDestMarker);
     currentDestMarker = L.marker(coords).addTo(map).bindPopup(name).openPopup();
+
+    // Log visit to backend
+    fetch("/admin/log_visit", {
+      method: "POST",
+      headers: {
+      "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ location: name })
+    });
 
     suggestionBox.innerHTML = '';
     searchInput.value = '';
