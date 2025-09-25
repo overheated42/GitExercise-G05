@@ -2,7 +2,7 @@
 from flask import Blueprint, render_template, redirect, url_for, flash, request, current_app
 from flask_login import login_required, current_user
 from app import db
-from .models import User , Visit, Location , ActivityLog , PageView
+from .models import User , Location, Visit, ActivityLog , PageView
 import json
 from sqlalchemy import func, Date, cast
 import os
@@ -12,6 +12,9 @@ with open("app/static/campus_places.geojson") as f:
     campus_places = json.load(f)
 
 admin_bp = Blueprint("admin", __name__, url_prefix="/admin")
+
+GEOJSON_PATH = os.path.join("app", "static", "campus_places.geojson")
+
 
 def log_activity(action, user=None):
     entry = ActivityLog(action=action)
@@ -279,3 +282,21 @@ def log_visit():
     db.session.commit()
 
     return jsonify({"message": "Visit logged"}), 200
+
+@admin_bp.route("/locations", methods=["GET", "POST"])
+def edit_locations():
+    if request.method == "POST":
+        # Save updated GeoJSON from frontend
+        updated_geojson = request.json
+        with open(GEOJSON_PATH, "w", encoding="utf-8") as f:
+            json.dump(updated_geojson, f, indent=2)
+        return {"status": "success"}
+
+    # GET: load locations from file
+    if os.path.exists(GEOJSON_PATH):
+        with open(GEOJSON_PATH, "r", encoding="utf-8") as f:
+            geojson_data = json.load(f)
+    else:
+        geojson_data = {"type": "FeatureCollection", "features": []}
+
+    return render_template("edit_locations.html", locations=geojson_data)

@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit Locations</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="admin">
+
+    <!-- Sidebar -->
+    <div class="admin-sidebar">
+        <h2 style="text-align:center;">Admin Panel</h2>
+        <a href="{{ url_for('admin.dashboard') }}">Dashboard</a>
+        <a href="{{ url_for('admin.edit_locations') }}">Map</a>
+        <a href="{{ url_for('admin.users') }}">User Management</a>
+        <a href="{{ url_for('admin.analytics') }}">Analytics</a>
+        <a href="{{ url_for('auth.logout') }}">Logout</a>
+    </div>
+
+    <!-- Header -->
+    <div class="admin-header">
+        Welcome, Admin | Site: MMU Lost in MMU?
+    </div>
+
+    <!-- Main content wrapper -->
+    <div class="admin-content">
+        <h2>Edit Campus Locations</h2>
+
+        <div id="map" style="height: 500px; margin-bottom: 20px;"></div>
+
+        <div id="locationForm" style="margin-bottom: 20px;">
+            <input type="text" id="newName" placeholder="Name" style="margin-right:10px;">
+            <input type="text" id="newLat" placeholder="Latitude" style="margin-right:10px;">
+            <input type="text" id="newLng" placeholder="Longitude" style="margin-right:10px;">
+            <button onclick="addLocation()">Add Location</button>
+            <button id="saveBtn">Save Changes</button>
+        </div>
+    </div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script>
+        const map = L.map('map').setView([2.9275, 101.642], 16);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+
+        // Load locations from Flask
+        let geojsonData = {{ locations|tojson }};
+        let markers = L.layerGroup().addTo(map);
+
+        function renderMarkers() {
+            markers.clearLayers();
+            geojsonData.features.forEach((feature, index) => {
+                let marker = L.marker([feature.geometry.coordinates[1], feature.geometry.coordinates[0]], { draggable: true })
+                    .bindPopup(`<b>${feature.properties.name}</b><br>
+                                <input type="text" id="name${index}" value="${feature.properties.name}"><br>
+                                <button onclick="removeLocation(${index})">Delete</button>`)
+                    .addTo(markers);
+
+                marker.on('dragend', e => {
+                    const coords = e.target.getLatLng();
+                    geojsonData.features[index].geometry.coordinates = [coords.lng, coords.lat];
+                });
+            });
+        }
+
+        function removeLocation(index) {
+            geojsonData.features.splice(index, 1);
+            renderMarkers();
+        }
+
+        function addLocation() {
+            const name = document.getElementById('newName').value;
+            const lat = parseFloat(document.getElementById('newLat').value);
+            const lng = parseFloat(document.getElementById('newLng').value);
+            geojsonData.features.push({
+                type: "Feature",
+                properties: { name },
+                geometry: { type: "Point", coordinates: [lng, lat] }
+            });
+            renderMarkers();
+        }
+
+        function saveLocations() {
+            geojsonData.features.forEach((f, idx) => {
+                const input = document.getElementById(`name${idx}`);
+                if (input) f.properties.name = input.value;
+            });
+
+            fetch("/admin/locations", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(geojsonData)
+            }).then(res => res.json()).then(data => {
+                if (data.status === "success") alert("Locations updated!");
+            });
+        }
+
+        document.getElementById("saveBtn").addEventListener("click", saveLocations);
+        renderMarkers();
+    </script>
+</body>
+</html>

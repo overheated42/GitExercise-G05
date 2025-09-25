@@ -24,7 +24,8 @@ class Location(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(150), unique=True, nullable=False)
     category = db.Column(db.String(50))  # Faculty, Food, Facility, etc.
-
+    latitude = db.Column(db.Float, nullable=True)   # Add this
+    longitude = db.Column(db.Float, nullable=True)
     visits = db.relationship("Visit", backref="location", lazy=True)
 
     def __repr__(self):

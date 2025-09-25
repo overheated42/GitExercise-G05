@@ -13,6 +13,7 @@
     <div class="admin-sidebar">
         <h2 style="text-align:center;">Admin Panel</h2>
         <a href="{{ url_for('admin.dashboard') }}">Dashboard</a>
+        <a href="{{ url_for('admin.edit_locations') }}">Map</a>
         <a href="{{ url_for('admin.users') }}">User Management</a>
         <a href="{{ url_for('admin.analytics') }}">Analytics</a>
         <a href="{{ url_for('auth.logout') }}">Logout</a>
@@ -35,6 +36,7 @@
         <thead>
             <tr>
                 <th>ID</th>
+                <th>Username</th>
                 <th>Name</th>
                 <th>Email</th>
                 <th>Role</th>
@@ -44,6 +46,7 @@
         <tbody>
             {% for user in users %}
             <tr>
+                <td>{{ user.id }}</td>
                 <td>{{ user.username }}</td>
                 <td>{{ user.name }}</td>
                 <td>{{ user.email }}</td>

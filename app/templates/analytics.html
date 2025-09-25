@@ -8,14 +8,6 @@
   <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   
-  <!-- Leaflet CSS & JS -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
-  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-
-  <style>
-    #map { height: 400px; margin-top: 20px; }
-    .card { padding: 20px; margin: 20px; border-radius: 8px; box-shadow: 0 0 5px rgba(0,0,0,0.1); background: #fff; }
-  </style>
 </head>
 <body class="admin">
 
@@ -23,6 +15,7 @@
   <div class="admin-sidebar">
     <h2 style="text-align:center;">Admin Panel</h2>
     <a href="{{ url_for('admin.dashboard') }}">Dashboard</a>
+    <a href="{{ url_for('admin.edit_locations') }}">Map</a>
     <a href="{{ url_for('admin.users') }}">User Management</a>
     <a href="{{ url_for('admin.analytics') }}">Analytics</a>
     <a href="{{ url_for('auth.logout') }}">Logout</a>
@@ -30,6 +23,7 @@
 
   <!-- Header -->
   <div class="admin-header">Analytics | MMU Lost in MMU?</div>
+  <div class="admin-content">
 
   <!-- Content -->
   <div class="card">
@@ -52,9 +46,6 @@
     <canvas id="pageviewsChart"></canvas>
   </div>
 
-  <div class="card">
-    <h3>Campus Map</h3>
-    <div id="map"></div>
   </div>
 
 <script>
@@ -96,21 +87,7 @@
     options: { responsive: true, scales: { y: { beginAtZero: true } } }
   });
 
-  // -----------------------------
-  // Leaflet Campus Map
-  // -----------------------------
-  const map = L.map('map');
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '© OpenStreetMap contributors'
-  }).addTo(map);
 
-  const campusGeoJSON = {{ campus_geojson | tojson }};
-  const campusLayer = L.geoJSON(campusGeoJSON).addTo(map);
-
-  // Fit map bounds
-  const campusBounds = campusLayer.getBounds();
-  map.fitBounds(campusBounds);
-  map.setMaxBounds(campusBounds);
 
   // -----------------------------
   // Add markers for most visited locations
