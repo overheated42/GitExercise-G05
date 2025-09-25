@@ -779,7 +779,7 @@ header {
 /* ==== MAP + SEARCH SIDEBAR LAYOUT ==== */
 #sidebar-overlay {
     position: absolute;
-    top: 150px;      /* distance from top of map */
+    top: 165px;      /* distance from top of map */
     right: 10px;    /* stick to right side */
     width: 250px;
     background: #fff;
