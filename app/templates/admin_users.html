@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+    <!-- Sidebar -->
+    <div class="admin-sidebar">
+        <h2 class="admin-sidebar-title" style="text-align:center;">Admin Panel</h2>
+        <a href="{{ url_for('admin.dashboard') }}" class="admin-sidebar-link">Dashboard</a>
+        <a href="{{ url_for('admin.edit_locations') }}" class="admin-sidebar-link">Map</a>
+        <a href="{{ url_for('admin.users') }}" class="admin-sidebar-link">User Management</a>
+        <a href="{{ url_for('admin.analytics') }}" class="admin-sidebar-link">Analytics</a>
+        <a href="{{ url_for('auth.logout') }}" class="admin-sidebar-link">Logout</a>
+    </div>
+
+    <!-- Header -->
+    <div class="admin-header2">
+        User Management | Site: MMU Lost in MMU?
+    </div>
+
+    <!-- Search Form -->
+    <form method="get" action="{{ url_for('admin.users') }}" class="admin-search-form">
+        <input type="text" name="q" class="admin-search-input" placeholder="Search..." value="{{ search_query }}">
+        <button type="submit" class="admin-search-button">Search</button>
+    </form>
+
+    <!-- User Management Table -->
+    <h2 id="users" class="admin-section-title">User Management</h2>
+    <table class="admin-table">
+        <thead class="admin-table-head">
+            <tr class="admin-table-row admin-table-head-row">
+                <th class="admin-table-head-cell">ID</th>
+                <th class="admin-table-head-cell">Username</th>
+                <th class="admin-table-head-cell">Name</th>
+                <th class="admin-table-head-cell">Email</th>
+                <th class="admin-table-head-cell">Role</th>
+                <th class="admin-table-head-cell">Actions</th>
+            </tr>
+        </thead>
+        <tbody class="admin-table-body">
+            {% for user in users %}
+            <tr class="admin-table-row">
+                <td class="admin-table-cell">{{ user.id }}</td>
+                <td class="admin-table-cell">{{ user.username }}</td>
+                <td class="admin-table-cell">{{ user.name }}</td>
+                <td class="admin-table-cell">{{ user.email }}</td>
+                <td class="admin-table-cell">{{ user.role }}</td>
+                <td class="admin-table-cell admin-table-actions">
+                    <a href="{{ url_for('admin.edit_user', user_id=user.id) }}" class="admin-btn admin-btn-edit">Edit</a>
+                    <a href="{{ url_for('admin.delete_user', user_id=user.id) }}" class="admin-btn admin-btn-delete" onclick="return confirm('Are you sure?')">Delete</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <br>
+    <a href="{{ url_for('admin.dashboard') }}" class="admin-back-link">Back to Dashboard</a>
+</body>
+</html>

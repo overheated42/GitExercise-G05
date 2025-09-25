@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>MMU HORIZON</title>
+
+     <!-- Leaflet CSS & JS -->
+     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+     <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.css" />
+     <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
+</head>
+<body>
+    <header>
+        <!-- Hamburger Menu Container -->
+        <div class="hamburger-container">
+            <input type="checkbox" id="hamburger-toggle" class="hamburger-toggle">
+            <label for="hamburger-toggle" class="hamburger-icon">
+                <div class="hamburger-line"></div>
+                <div class="hamburger-line"></div>
+                <div class="hamburger-line"></div>
+            </label>
+
+            <!-- Navigation Menu -->
+            <nav class="nav-menu">
+                <!-- Faculties -->
+                 <div class="dropdown">
+                    <a href="#" class="dropdown-toggle">Faculties</a>
+                    <ul class="dropdown-menu">
+                        <li><a href="#" data-destination="Faculty of Computing and Informatics (FCI)">Faculty of Computing and Informatics (FCI)</a></li>
+                        <li><a href="#" data-destination="Faculty of Creative Multimedia (FCM)">Faculty of Creative Multimedia (FCM)</a></li>
+                        <li><a href="#" data-destination="Faculty of Artificial Intelligence & Engineering (FAIE)">Faculty of Artificial Intelligence & Engineering (FAIE)</a></li>
+                        <li><a href="#" data-destination="Faculty of Management (FOM)">Faculty of Management (FOM)</a></li>
+                    </ul>
+                </div>
+
+                <!-- Food and Beverages -->
+                <div class="dropdown">
+                    <a href="#" class="dropdown-toggle">Food and Beverages</a>
+                    <ul class="dropdown-menu">
+                        <li><a href="#" data-destination="MMU Starbees">MMU Starbees</a></li>
+                        <li><a href="#" data-destination="Restoran Haji Tapah Bistro">Restoran Haji Tapah Bistro</a></li>
+                        <li><a href="#" data-destination="Deen's Cafe">Deen's Cafe</a></li>
+                    </ul>
+                </div>
+
+
+                <!-- Facilities -->
+                <div class="dropdown">
+                    <a href="#" class="dropdown-toggle">Facilities</a>
+                    <ul class="dropdown-menu">
+                        <li><a href="#" data-destination="Library">Siti Hasmah Digital Library Multimedia University</a></li>
+                        <li><a href="#" data-destination="Dewan Tun Canselor (DTC)">Dewan Tun Canselor (DTC)</a></li>
+                        <li><a href="#" data-destination="Central Lecture Complex (CLC)">Central Lecture Complex (CLC)</a></li>
+                        <li><a href="#" data-destination="STAD Building MMU">Student Affairs Division (STAD)</a></li>
+                        <li><a href="#" data-destination="Admission and International Office">Admission and International Office</a></li>
+                        <li><a href="#" data-destination="Institute for Postgraduate Studies">Institute for Postgraduate Studies</a></li>
+                        <li><a href="#" data-destination="Multipurpose Hall (MPH)">Multipurpose Hall (MPH)</a></li>
+                    </ul>
+                </div>
+
+                <!-- Hostel List -->
+                <div class="dropdown">
+                    <a href="#" class="dropdown-toggle">Hostel</a>
+                    <ul class="dropdown-menu">
+                        <li><a href="#" data-destination="HB1">Hostel B1</a></li>
+                        <li><a href="#" data-destination="HB2">Hostel B2</a></li>
+                        <li><a href="#" data-destination="HB3">Hostel B3</a></li>
+                        <li><a href="#" data-destination="HB4">Hostel B4</a></li>
+                    </ul>
+                </div>
+                
+                <!-- Submenu Items -->
+                <div class="submenu">
+                    <a href="{{ url_for('auth.account') }}">Account</a>
+                    <a href="{{ url_for('auth.logout') }}">Logout</a>
+                </div>
+            </nav>
+
+            <!-- Close button overlay -->
+            <label for="hamburger-toggle" class="menu-overlay"></label>
+        </div>
+
+        <h1>LOST IN MMU?</h1>
+    </header>
+    
+    <!-- Chatbox Container -->
+    <div class="chatbox-container">
+        <input type="checkbox" id="chatbox-toggle" class="chatbox-toggle">
+        
+        <!-- Chat Button (floating) -->
+        <label for="chatbox-toggle" class="chat-button">
+            <div class="chat-icon">💬</div>
+            <div class="close-icon">✕</div>
+        </label>
+
+        <!-- Chat Window -->
+        <div class="chat-window">
+            <div class="chat-header">
+                <h3>MMU AI Assistant</h3>
+                <label for="chatbox-toggle" class="chat-close">✕</label>
+            </div>
+            
+            <div class="chat-messages" id="chatMessages">
+                <div class="message ai-message">
+                    <div class="message-content">Hello! I'm your MMU AI assistant. I can help you with information about faculties, facilities, food options, and general campus queries. How can I help you today?</div>
+                </div>
+            </div>
+            
+            <div class="chat-input-container">
+                <form class="chat-form" id="chatForm" onsubmit="sendMessage(event)">
+                    <input type="text" class="chat-input" id="messageInput" name="message" placeholder="Type your message here..." required>
+                    <button type="submit" class="send-button" id="sendButton">Send</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Chat Overlay -->
+        <label for="chatbox-toggle" class="chat-overlay"></label>
+    </div>
+
+    <!-- Enhanced JavaScript for chat functionality -->
+    <script>
+        let isRequestInProgress = false;
+
+        function sendMessage(event) {
+            event.preventDefault();
+            
+            // Prevent multiple simultaneous requests
+            if (isRequestInProgress) return;
+            
+            const input = document.getElementById('messageInput');
+            const sendButton = document.getElementById('sendButton');
+            const message = input.value.trim();
+            
+            if (message === '') return;
+            
+            // Set request in progress
+            isRequestInProgress = true;
+            sendButton.disabled = true;
+            sendButton.textContent = 'Sending...';
+            
+            // Add user message to chat
+            const chatMessages = document.getElementById('chatMessages');
+            const userMessageDiv = document.createElement('div');
+            userMessageDiv.className = 'message user-message';
+            userMessageDiv.innerHTML = `<div class="message-content">${escapeHtml(message)}</div>`;
+            chatMessages.appendChild(userMessageDiv);
+            
+            // Clear input
+            input.value = '';
+            
+            // Show typing indicator
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'message ai-message typing-indicator';
+            typingDiv.id = 'typingIndicator';
+            typingDiv.innerHTML = `<div class="message-content">
+                <div class="typing-dots">
+                    <span></span><span></span><span></span>
+                </div>
+                AI is thinking...
+            </div>`;
+            chatMessages.appendChild(typingDiv);
+            
+            // Scroll to bottom
+            scrollToBottom();
+            
+            // Send message to server (supports both JSON and form data)
+            fetch('/chat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ message: message })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Remove typing indicator
+                const typingIndicator = document.getElementById('typingIndicator');
+                if (typingIndicator) {
+                    typingIndicator.remove();
+                }
+                
+                // Add AI response with proper HTML handling
+                const aiMessageDiv = document.createElement('div');
+                aiMessageDiv.className = 'message ai-message';
+                
+                // Handle potential HTML/markdown in response
+                const formattedResponse = formatAIResponse(data.response);
+                aiMessageDiv.innerHTML = `<div class="message-content">${formattedResponse}</div>`;
+                chatMessages.appendChild(aiMessageDiv);
+                
+                scrollToBottom();
+            })
+            .catch(error => {
+                console.error('Chat error:', error);
+                
+                // Remove typing indicator
+                const typingIndicator = document.getElementById('typingIndicator');
+                if (typingIndicator) {
+                    typingIndicator.remove();
+                }
+                
+                // Show appropriate error message
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'message ai-message error-message';
+                
+                let errorMessage = "Sorry, I'm having trouble connecting right now. Please try again in a moment.";
+                if (error.message.includes('500')) {
+                    errorMessage = "The AI service is temporarily unavailable. Our basic help system is still working - try asking about faculties, food, or facilities!";
+                } else if (error.message.includes('404')) {
+                    errorMessage = "Hmm, seems like there's a connection issue. Please refresh the page and try again.";
+                }
+                
+                errorDiv.innerHTML = `<div class="message-content">${errorMessage}</div>`;
+                chatMessages.appendChild(errorDiv);
+                
+                scrollToBottom();
+            })
+            .finally(() => {
+                // Reset button state
+                isRequestInProgress = false;
+                sendButton.disabled = false;
+                sendButton.textContent = 'Send';
+            });
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function formatAIResponse(response) {
+            // Basic formatting for better display
+            return response
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') // Bold
+                .replace(/\*(.*?)\*/g, '<em>$1</em>') // Italic
+                .replace(/\n\n/g, '<br><br>') // Paragraph breaks
+                .replace(/\n/g, '<br>') // Line breaks
+                .replace(/•/g, '•'); // Ensure bullets display correctly
+        }
+
+        function scrollToBottom() {
+            const chatMessages = document.getElementById('chatMessages');
+            setTimeout(() => {
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }, 100);
+        }
+
+        // Allow sending message with Enter key
+        document.getElementById('messageInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage(e);
+            }
+        });
+
+        // Auto-focus input when chat is opened
+        document.getElementById('chatbox-toggle').addEventListener('change', function(e) {
+            if (e.target.checked) {
+                setTimeout(() => {
+                    document.getElementById('messageInput').focus();
+                }, 300);
+            }
+        });
+    </script>
+
+
+
+    <!-- Single Faculty Modal -->
+<div class="modal-overlay" id="facultyModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <div class="modal-header-content">
+                <h2 id="facultyTitle">Faculty Name</h2>
+                <p id="facultySubtitle">Faculty Subtitle</p>
+            </div>
+            <button class="close-button" onclick="closeFacultyModal()">&times;</button>
+        </div>
+        
+        <div class="modal-body" id="facultyContent">
+            <!-- Content will be dynamically inserted here -->
+        </div>
+    </div>
+</div>
+
+<!-- Food & Beverage Modal -->
+<div class="modal-overlay" id="foodModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <div class="modal-header-content">
+                <h2 id="foodTitle">Food Place Name</h2>
+                <p id="foodSubtitle">Food Description</p>
+            </div>
+            <button class="close-button" onclick="closeFoodModal()">&times;</button>
+        </div>
+        
+        <div class="modal-body" id="foodContent">
+            <!-- Content will be dynamically inserted here -->
+        </div>
+    </div>
+</div>
+
+<!-- Facilities Modal -->
+<div class="modal-overlay" id="facilityModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <div class="modal-header-content">
+                <h2 id="facilityTitle">Facility Name</h2>
+                <p id="facilitySubtitle">Facility Description</p>
+            </div>
+            <button class="close-button" onclick="closeFacilityModal()">&times;</button>
+        </div>
+        
+        <div class="modal-body" id="facilityContent">
+            <!-- Content will be dynamically inserted here -->
+        </div>
+    </div>
+</div>  
+
+
+<main>
+    <div id="map"></div>
+    <div id="sidebar-overlay">
+        <input type="text" id="searchInput" placeholder="Search">
+        <div id="start-btn-container" style="display:none; margin-top:10px;">
+            <button id="startBtn" style="padding:8px 12px; background:#0078ff; color:white; border:none; border-radius:5px; cursor:pointer;">
+              Start Walking
+            </button>
+          </div>
+        <div id="suggestionBox"></div>
+        <div id="route-info" style="display:none;"></div> 
+      </div>
+</main>
+
+<button id="simulateBtn">🚶 Simulate Walk</button> <!--for testing on laptop-->
+
+     <!-- Leaflet Routing Machine -->
+     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+     <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
+     <script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.js"></script>
+     <script src="https://unpkg.com/leaflet-geometryutil"></script> <!-- helper -->
+    <script src="static/scripts.js"></script>
+    
+    
+</body>
+</html>

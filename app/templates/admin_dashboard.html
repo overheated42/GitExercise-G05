@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="admin">
+
+    <!-- Sidebar -->
+    <div class="admin-sidebar">
+        <h2 style="text-align:center;">Admin Panel</h2>
+        <a href="{{ url_for('admin.dashboard') }}">Dashboard</a>
+        <a href="{{ url_for('admin.edit_locations') }}">Map</a>
+        <a href="{{ url_for('admin.users') }}">User Management</a>
+        <a href="{{ url_for('admin.analytics') }}">Analytics</a>
+        <a href="{{ url_for('auth.logout') }}">Logout</a>
+    </div>
+
+    <!-- Header -->
+    <div class="admin-header">
+        Welcome, Admin | Site: MMU Lost in MMU?
+    </div>
+
+    <!-- Main content -->
+    <div class="admin-content">
+
+        <!-- Dashboard Cards -->
+        <div class="dashboard-cards" id="dashboard">
+            <div class="card">
+                <h3>Total Users</h3>
+                <p>{{ total_users }}</p>
+            </div>
+            <div class="card">
+                <h3>Active Users</h3>
+                <p>{{ active_users }}</p>
+            </div>
+            <div class="card">
+                <h3>Popular Locations</h3>
+                <p>{{ popular_locations|join(', ') }}</p>
+            </div>
+        </div>
+
+        <!-- User Growth Chart -->
+        <div class="chart-section">
+            <h2>User Growth (Weekly)</h2>
+            <canvas id="userGrowthChart"></canvas>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="recent-activity">
+            <h2>Recent Activity</h2>
+            <ul>
+                {% for activity in recent_activities %}
+                    <li>
+                        {{ activity.timestamp.strftime("%Y-%m-%d %H:%M") }} —
+                        {{ activity.action }}
+                        {% if activity.user %}(by {{ activity.user.username }}){% endif %}
+                    </li>
+                {% else %}
+                <li>No recent activity yet.</li>
+                {% endfor %}
+            </ul>
+        </div>
+
+    </div>
+
+    <!-- Chart.js Script -->
+    <script>
+        const ctx = document.getElementById('userGrowthChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: {{ growth_labels|safe }},   // ✅ labels from backend
+                datasets: [{
+                    label: 'New Users',
+                    data: {{ growth_data|safe }},   // ✅ data from backend
+                    borderColor: '#3686c7',
+                    backgroundColor: 'rgba(54,134,199,0.2)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.3
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { display: true }
+                },
+                scales: {
+                    y: { beginAtZero: true }
+               }
+            }
+        });
+    </script>
+
+    <!-- 🔄 Auto-refresh Recent Activity -->
+    <script>
+        setInterval(() => {
+            fetch("{{ url_for('admin.dashboard') }}?partial=activities")
+                .then(res => res.text())
+                .then(html => {
+                    document.querySelector(".recent-activity ul").innerHTML = html;
+                });
+        }, 30000); // refresh every 30s
+    </script>
+
+
+
+</body>
+</html>
