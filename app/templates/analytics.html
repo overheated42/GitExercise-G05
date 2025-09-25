@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Analytics - Admin Dashboard</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  
+</head>
+<body class="admin">
+
+  <!-- Sidebar -->
+  <div class="admin-sidebar">
+    <h2 style="text-align:center;">Admin Panel</h2>
+    <a href="{{ url_for('admin.dashboard') }}">Dashboard</a>
+    <a href="{{ url_for('admin.edit_locations') }}">Map</a>
+    <a href="{{ url_for('admin.users') }}">User Management</a>
+    <a href="{{ url_for('admin.analytics') }}">Analytics</a>
+    <a href="{{ url_for('auth.logout') }}">Logout</a>
+  </div>
+
+  <!-- Header -->
+  <div class="admin-header">Analytics | MMU Lost in MMU?</div>
+  <div class="admin-content">
+
+  <!-- Content -->
+  <div class="card">
+    <h3>Active Users</h3>
+    <p>{{ active_users }}</p>
+  </div>
+
+  <div class="card">
+    <h3>Total Locations</h3>
+    <p>{{ total_locations }}</p>
+  </div>
+
+  <div class="card">
+    <h3>Most Searched Locations</h3>
+    <canvas id="mostVisitedChart"></canvas>
+  </div>
+
+  <div class="card">
+    <h3>Pageviews Today ({{ today }})</h3>
+    <canvas id="pageviewsChart"></canvas>
+  </div>
+
+  </div>
+
+<script>
+  // -----------------------------
+  // Most Visited Locations Chart
+  // -----------------------------
+  const mostVisitedLabels = {{ most_visited | map(attribute=0) | list | tojson }};
+  const mostVisitedCounts = {{ most_visited | map(attribute=1) | list | tojson }};
+
+  new Chart(document.getElementById("mostVisitedChart").getContext("2d"), {
+    type: "bar",
+    data: {
+      labels: mostVisitedLabels.length ? mostVisitedLabels : ["No data"],
+      datasets: [{
+        label: "Number of Searches",
+        data: mostVisitedCounts.length ? mostVisitedCounts : [0],
+        backgroundColor: "rgba(54, 162, 235, 0.6)"
+      }]
+    },
+    options: { responsive: true, scales: { y: { beginAtZero: true } } }
+  });
+
+  // -----------------------------
+  // Pageviews Today Chart
+  // -----------------------------
+  const pageLabels = {{ page_labels | tojson }};
+  const pageCounts = {{ page_counts | tojson }};
+
+  new Chart(document.getElementById("pageviewsChart").getContext("2d"), {
+    type: "bar",
+    data: {
+      labels: pageLabels.length ? pageLabels : ["No data"],
+      datasets: [{
+        label: "Pageviews Today",
+        data: pageCounts.length ? pageCounts : [0],
+        backgroundColor: "rgba(255, 159, 64, 0.6)"
+      }]
+    },
+    options: { responsive: true, scales: { y: { beginAtZero: true } } }
+  });
+
+
+
+  // -----------------------------
+  // Add markers for most visited locations
+  // -----------------------------
+  {% for location_name, count in most_visited %}
+    {% set loc = campus_places.features 
+                   | selectattr('properties.name','defined') 
+                   | selectattr('properties.name', 'lower') 
+                   | selectattr('equalto', location_name.lower()) 
+                   | first %}
+    {% if loc %}
+      L.marker([{{ loc.geometry.coordinates[1] }}, {{ loc.geometry.coordinates[0] }}])
+        .addTo(map)
+        .bindPopup("{{ location_name }}: {{ count }} visits");
+    {% else %}
+      console.warn("No matching feature found for '{{ location_name }}'");
+    {% endif %}
+  {% endfor %}
+</script>
+
+
+    
+</body>
+</html>
