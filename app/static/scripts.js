@@ -442,7 +442,7 @@ function updateUserPosition(lat, lng, heading, snap = true) {
 
   if (!userMarker) {
     // Create arrow marker with id for rotation
-    const arrowIcon = L.divIcon({ 
+    const circleIcon = L.divIcon({ 
       html: `<div id="arrow" style="
         width: 20px;
         height: 20px;
@@ -455,13 +455,13 @@ function updateUserPosition(lat, lng, heading, snap = true) {
       iconAnchor: [10, 10] // center the circle
     });
 
-    userMarker = L.marker([snapped.lat, snapped.lng], { icon: arrowIcon }).addTo(map);
+    userMarker = L.marker([snapped.lat, snapped.lng], { icon: circleIcon }).addTo(map);
 
     // Tooltip only first time
     let tooltip = userMarker.bindTooltip("You are here", {
       permanent: true,
       direction: "top",
-      offset: [0, -10]
+      offset: [0, -15]
     }).openTooltip();
 
     setTimeout(() => { userMarker.unbindTooltip(); }, 5000);
