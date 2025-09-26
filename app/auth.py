@@ -76,11 +76,17 @@ def login():
         if user and check_password_hash(user.password, password):
             login_user(user, remember=remember)
             flash("Login successful!", "success")
-            return redirect(url_for("auth.home"))
+
+            # Redirect based on role
+            if user.role == 'admin':
+                return redirect(url_for("admin.dashboard"))  # Your admin dashboard route
+            else:
+                return redirect(url_for("auth.home"))  # Regular user dashboard
         else:
             flash("Invalid username or password", "danger")
 
     return render_template("login.html")
+
 
 
 # Logout
@@ -179,6 +185,22 @@ def account():
 
     return render_template("account.html", user=current_user)
 
+@auth_bp.route('/delete_account', methods=['POST'])
+@login_required
+def delete_account():
+    try:
+        user_id = current_user.id
+        user = User.query.get(user_id)
+        if user:
+            db.session.delete(user)
+            db.session.commit()
+            flash("Your account has been deleted successfully.", "success")
+        else:
+            flash("User not found.", "error")
+    except Exception as e:
+        db.session.rollback()
+        flash(f"Error deleting account: {str(e)}", "error")
+    return redirect(url_for('auth.logout'))
 
 # Google login
 @auth_bp.route("/google_login")

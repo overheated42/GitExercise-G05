@@ -28,10 +28,10 @@
                  <div class="dropdown">
                     <a href="#" class="dropdown-toggle">Faculties</a>
                     <ul class="dropdown-menu">
-                        <li><a href="#" data-destination="Faculty of Computing and Informatics">Faculty of Computing and Informatics (FCI)</a></li>
-                        <li><a href="#" data-destination="Faculty of Creative Multimedia">Faculty of Creative Multimedia (FCM)</a></li>
-                        <li><a href="#" data-destination="Faculty of Engineering">Faculty of Engineering (FOE)</a></li>
-                        <li><a href="#" data-destination="Faculty of Management">Faculty of Management (FOM)</a></li>
+                        <li><a href="#" data-destination="Faculty of Computing and Informatics (FCI)">Faculty of Computing and Informatics (FCI)</a></li>
+                        <li><a href="#" data-destination="Faculty of Creative Multimedia (FCM)">Faculty of Creative Multimedia (FCM)</a></li>
+                        <li><a href="#" data-destination="Faculty of Artificial Intelligence & Engineering (FAIE)">Faculty of Artificial Intelligence & Engineering (FAIE)</a></li>
+                        <li><a href="#" data-destination="Faculty of Management (FOM)">Faculty of Management (FOM)</a></li>
                     </ul>
                 </div>
 
@@ -51,16 +51,28 @@
                     <a href="#" class="dropdown-toggle">Facilities</a>
                     <ul class="dropdown-menu">
                         <li><a href="#" data-destination="Library">Siti Hasmah Digital Library Multimedia University</a></li>
-                        <li><a href="#" data-destination="Dewan Tun Canselor">Dewan Tun Canselor (DTC)</a></li>
-                        <li><a href="#" data-destination="Central Lecture Complex">Central Lecture Complex (CLC)</a></li>
+                        <li><a href="#" data-destination="Dewan Tun Canselor (DTC)">Dewan Tun Canselor (DTC)</a></li>
+                        <li><a href="#" data-destination="Central Lecture Complex (CLC)">Central Lecture Complex (CLC)</a></li>
                         <li><a href="#" data-destination="STAD Building MMU">Student Affairs Division (STAD)</a></li>
-                        <li><a href="#" data-destination="Surau Al Hidayah MMU">Surau Al Hidayah MMU</a></li>
+                        <li><a href="#" data-destination="Admission and International Office">Admission and International Office</a></li>
+                        <li><a href="#" data-destination="Institute for Postgraduate Studies">Institute for Postgraduate Studies</a></li>
+                        <li><a href="#" data-destination="Multipurpose Hall (MPH)">Multipurpose Hall (MPH)</a></li>
+                    </ul>
+                </div>
+
+                <!-- Hostel List -->
+                <div class="dropdown">
+                    <a href="#" class="dropdown-toggle">Hostel</a>
+                    <ul class="dropdown-menu">
+                        <li><a href="#" data-destination="HB1">Hostel B1</a></li>
+                        <li><a href="#" data-destination="HB2">Hostel B2</a></li>
+                        <li><a href="#" data-destination="HB3">Hostel B3</a></li>
+                        <li><a href="#" data-destination="HB4">Hostel B4</a></li>
                     </ul>
                 </div>
                 
                 <!-- Submenu Items -->
                 <div class="submenu">
-                    <a href="#hostel">Hostel</a>
                     <a href="{{ url_for('auth.account') }}">Account</a>
                     <a href="{{ url_for('auth.logout') }}">Logout</a>
                 </div>
@@ -72,7 +84,7 @@
 
         <h1>LOST IN MMU?</h1>
     </header>
-
+    
     <!-- Chatbox Container -->
     <div class="chatbox-container">
         <input type="checkbox" id="chatbox-toggle" class="chatbox-toggle">
@@ -261,25 +273,82 @@
     </script>
 
 
-    <main>
-        <div id="map"></div>
-        <div id="sidebar-overlay">
-            <input type="text" id="searchInput" placeholder="Search">
-            <div id="suggestionBox"></div>
-            <div id="route-info" style="display:none;"></div> 
-          </div>
-    </main>
 
-      
+    <!-- Single Faculty Modal -->
+<div class="modal-overlay" id="facultyModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <div class="modal-header-content">
+                <h2 id="facultyTitle">Faculty Name</h2>
+                <p id="facultySubtitle">Faculty Subtitle</p>
+            </div>
+            <button class="close-button" onclick="closeFacultyModal()">&times;</button>
+        </div>
+        
+        <div class="modal-body" id="facultyContent">
+            <!-- Content will be dynamically inserted here -->
+        </div>
+    </div>
+</div>
+
+<!-- Food & Beverage Modal -->
+<div class="modal-overlay" id="foodModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <div class="modal-header-content">
+                <h2 id="foodTitle">Food Place Name</h2>
+                <p id="foodSubtitle">Food Description</p>
+            </div>
+            <button class="close-button" onclick="closeFoodModal()">&times;</button>
+        </div>
+        
+        <div class="modal-body" id="foodContent">
+            <!-- Content will be dynamically inserted here -->
+        </div>
+    </div>
+</div>
+
+<!-- Facilities Modal -->
+<div class="modal-overlay" id="facilityModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <div class="modal-header-content">
+                <h2 id="facilityTitle">Facility Name</h2>
+                <p id="facilitySubtitle">Facility Description</p>
+            </div>
+            <button class="close-button" onclick="closeFacilityModal()">&times;</button>
+        </div>
+        
+        <div class="modal-body" id="facilityContent">
+            <!-- Content will be dynamically inserted here -->
+        </div>
+    </div>
+</div>  
+
+
+<main>
+    <div id="map"></div>
+    <div id="sidebar-overlay">
+        <input type="text" id="searchInput" placeholder="Search">
+        <div id="start-btn-container" style="display:none; margin-top:10px;">
+            <button id="startBtn" style="padding:8px 12px; background:#0078ff; color:white; border:none; border-radius:5px; cursor:pointer;">
+              Start Walking
+            </button>
+          </div>
+        <div id="suggestionBox"></div>
+        <div id="route-info" style="display:none;"></div> 
+      </div>
+</main>
+
+<button id="simulateBtn">🚶 Simulate Walk</button> <!--for testing on laptop-->
+
      <!-- Leaflet Routing Machine -->
      <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
      <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
      <script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.js"></script>
      <script src="https://unpkg.com/leaflet-geometryutil"></script> <!-- helper -->
-        
-     <script src="static/scripts.js"></script>
+    <script src="static/scripts.js"></script>
     
-      
     
 </body>
 </html>
