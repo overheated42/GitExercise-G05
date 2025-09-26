@@ -19,7 +19,7 @@
     },
     {
       "type": "Feature",
-      "properties": { "name": "Faculty of Computing and Informatics (FCI)" },
+      "properties": { "name": "Faculty of Computing and Informatics (FCI)" ,"aliases": ["CQ (FCI)"] },
       "geometry": {
         "type": "Point",
         "coordinates": [101.6410095807574, 2.928680020013035]
@@ -27,7 +27,7 @@
     },
     {
       "type": "Feature",
-      "properties": { "name": "Faculty of Management (FOM)" },
+      "properties": { "name": "Faculty of Management (FOM)" ,"aliases": ["CR (FOM)"] },
       "geometry": {
         "type": "Point",
         "coordinates": [ 101.64123634592652, 2.9297125872433063]
@@ -43,7 +43,7 @@
     },
     {
       "type": "Feature",
-      "properties": { "name": "Faculty of Artificial Intelligence & Engineering (FAIE)" },
+      "properties": { "name": "Faculty of Artificial Intelligence & Engineering (FAIE)" ,"aliases": ["CL (FAIE)"] },
       "geometry": {
         "type": "Point",
         "coordinates": [101.64115771069797, 2.92642464400397]
@@ -59,7 +59,7 @@
     },
     {
       "type": "Feature",
-      "properties": { "name": "Faculty of Creative Multimedia (FCM)" },
+      "properties": { "name": "Faculty of Creative Multimedia (FCM)" ,"aliases": ["CJ (FCM)"] },
       "geometry": {
         "type": "Point",
         "coordinates": [101.64267253083617, 2.9261590322885573]
@@ -67,7 +67,7 @@
     },
     {
       "type": "Feature",
-      "properties": { "name": "Central Lecture Complex (CLC)" },
+      "properties": { "name": "Central Lecture Complex (CLC)" ,"aliases": ["CN (CLC)"] },
       "geometry": {
         "type": "Point",
         "coordinates": [101.6423122732111, 2.9276774225188236]

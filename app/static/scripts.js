@@ -50,7 +50,13 @@ fetch("static/campus_places.geojson")
     let coords = feature.geometry.coordinates.slice().reverse();
     campusPlaces[name] = coords;
     
-  });
+  // ✅ store aliases if they exist            ////////////////////////////////////////
+  if (feature.properties.aliases) {
+    feature.properties.aliases.forEach(alias => {
+      campusPlaces[alias] = coords;
+    });
+  }
+});
   initCampusSearch();
 });
 
@@ -143,15 +149,13 @@ let userMarker, routeLine;
 let currentDestMarker = null;
 let searchHistory = []; // store recent searches
 
+
 function initCampusSearch() {
-  // ============================
-  // Using HTML elements for search sidebar
-  // ============================
+   // Using HTML elements for search sidebar
   const searchInput = document.getElementById('searchInput');
   const suggestionBox = document.getElementById('suggestionBox');
-   
 
-  // ============================
+   // ============================
   // Handle typing (suggestions)
   // ============================
   searchInput.addEventListener('input', function () {
@@ -173,6 +177,7 @@ function initCampusSearch() {
       }
     });
   });
+
 
   // ============================
   // Show search history on focus
@@ -262,7 +267,7 @@ function initCampusSearch() {
       }
     );
   }
-}
+
 
 document.getElementById("startBtn").addEventListener("click", () => {
   startNavigation(); // enable auto-follow
@@ -513,7 +518,7 @@ function updateUserPosition(lat, lng, heading, snap = true) {
     map.setView(snapped, 18, { animate: true });
   }
 
-  // Auto-update route if destination exists
+  // Auto-update route if destination exists        
   if (userMarker && currentDestMarker) {
     customRouter.route(
        [
@@ -543,11 +548,11 @@ function stopNavigation() {
 // ============================
 // Recenter Button
 // ============================
-const recenterBtn = L.control({ position: "topleft" });
+const recenterBtn = L.control({ position: "bottomleft" });
 
 recenterBtn.onAdd = function(map) {
   let btn = L.DomUtil.create("button", "recenter-button");
-  btn.innerHTML = "📍";
+  btn.innerHTML = "📍 Recenter Me";
 
   btn.onclick = () => {
     navigationMode = true; // turn auto-follow back on
@@ -758,7 +763,7 @@ document.addEventListener("DOMContentLoaded", () => {
       });
   });
 });
-
+}
 
 
 
