@@ -1,0 +1,24 @@
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+venv/
+env/
+
+.vscode/
+.idea/
+
+instance/
+*.db
+
+.DS_Store
+Thumbs.db
+.env
+credentials.json
+token.pickle
+.env 
+app/.env 
+
+# Ignore RTF files
+*.rtf
