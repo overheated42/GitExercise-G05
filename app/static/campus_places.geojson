@@ -1,252 +1,164 @@
 {
+  "type": "FeatureCollection",
   "features": [
     {
+      "type": "Feature",
+      "properties": { "name": "Library" },
       "geometry": {
-        "coordinates": [
-          101.64179169326803,
-          2.927555283363133
-        ],
-        "type": "Point"
-      },
-      "properties": {
-        "name": "Library"
-      },
-      "type": "Feature"
+        "type": "Point",
+        "coordinates": [101.64179169326803, 2.927555283363133]
+      }
     },
     {
+      "type": "Feature",
+      "properties": { "name": "MMU Starbees" },
       "geometry": {
-        "coordinates": [
-          101.64302324697151,
-          2.9278721722889594
-        ],
-        "type": "Point"
-      },
-      "properties": {
-        "name": "MMU Starbees"
-      },
-      "type": "Feature"
+        "type": "Point",
+        "coordinates": [101.64302324697151, 2.9278721722889594]
+      }
     },
     {
+      "type": "Feature",
+      "properties": { "name": "Faculty of Computing and Informatics (FCI)" ,"aliases": ["CQ (FCI)"] },
       "geometry": {
-        "coordinates": [
-          101.6410095807574,
-          2.928680020013035
-        ],
-        "type": "Point"
-      },
-      "properties": {
-        "name": "Faculty of Computing and Informatics (FCI)"
-      },
-      "type": "Feature"
+        "type": "Point",
+        "coordinates": [101.6410095807574, 2.928680020013035]
+      }
     },
     {
+      "type": "Feature",
+      "properties": { "name": "Faculty of Management (FOM)" ,"aliases": ["CR (FOM)"] },
       "geometry": {
-        "coordinates": [
-          101.64123634592652,
-          2.9297125872433063
-        ],
-        "type": "Point"
-      },
-      "properties": {
-        "name": "Faculty of Management (FOM)"
-      },
-      "type": "Feature"
+        "type": "Point",
+        "coordinates": [ 101.64123634592652, 2.9297125872433063]
+      }
     },
     {
+      "type": "Feature",
+      "properties": { "name": "Dewan Tun Canselor (DTC)" },
       "geometry": {
-        "coordinates": [
-          101.64203980693222,
-          2.9293473695705146
-        ],
-        "type": "Point"
-      },
-      "properties": {
-        "name": "Dewan Tun Canselor (DTC)"
-      },
-      "type": "Feature"
+        "type": "Point",
+        "coordinates": [101.64203980693222, 2.9293473695705146]
+      }
     },
     {
+      "type": "Feature",
+      "properties": { "name": "Faculty of Artificial Intelligence & Engineering (FAIE)" ,"aliases": ["CL (FAIE)"] },
       "geometry": {
-        "coordinates": [
-          101.64119482040407,
-          2.926304445916552
-        ],
-        "type": "Point"
-      },
-      "properties": {
-        "name": "Faculty of Artificial Intelligence & Engineering (FAIE)"
-      },
-      "type": "Feature"
+        "type": "Point",
+        "coordinates": [101.64115771069797, 2.92642464400397]
+      }
     },
     {
+      "type": "Feature",
+      "properties": { "name": "Restoran Haji Tapah Bistro" },
       "geometry": {
-        "coordinates": [
-          101.64178161576882,
-          2.9271036089864446
-        ],
-        "type": "Point"
-      },
-      "properties": {
-        "name": "Restoran Haji Tapah Bistro"
-      },
-      "type": "Feature"
+        "type": "Point",
+        "coordinates": [101.64178161576882, 2.9271036089864446]
+      }
     },
     {
+      "type": "Feature",
+      "properties": { "name": "Faculty of Creative Multimedia (FCM)" ,"aliases": ["CJ (FCM)"] },
       "geometry": {
-        "coordinates": [
-          101.64267253083617,
-          2.9261590322885573
-        ],
-        "type": "Point"
-      },
-      "properties": {
-        "name": "Faculty of Creative Multimedia (FCM)"
-      },
-      "type": "Feature"
+        "type": "Point",
+        "coordinates": [101.64267253083617, 2.9261590322885573]
+      }
     },
     {
+      "type": "Feature",
+      "properties": { "name": "Central Lecture Complex (CLC)" ,"aliases": ["CN (CLC)"] },
       "geometry": {
-        "coordinates": [
-          101.6423122732111,
-          2.9276774225188236
-        ],
-        "type": "Point"
-      },
-      "properties": {
-        "name": "Central Lecture Complex (CLC)"
-      },
-      "type": "Feature"
+        "type": "Point",
+        "coordinates": [101.6423122732111, 2.9276774225188236]
+      }
     },
     {
+      "type": "Feature",
+      "properties": { "name": "STAD Building MMU" },
       "geometry": {
-        "coordinates": [
-          101.6419575255755,
-          2.925489014871112
-        ],
-        "type": "Point"
-      },
-      "properties": {
-        "name": "STAD Building MMU"
-      },
-      "type": "Feature"
+        "type": "Point",
+        "coordinates": [101.6419575255755, 2.925489014871112]
+      }
     },
     {
+      "type": "Feature",
+      "properties": { "name": "Deen's Cafe" },
       "geometry": {
-        "coordinates": [
-          101.64255201816559,
-          2.925302607375077
-        ],
-        "type": "Point"
-      },
-      "properties": {
-        "name": "Deen's Cafe"
-      },
-      "type": "Feature"
+        "type": "Point",
+        "coordinates": [101.64254897409825, 2.925337247057707]
+      }
     },
     {
+      "type": "Feature",
+      "properties": { "name": "HB4" },
       "geometry": {
-        "coordinates": [
-          101.64425902787414,
-          2.9258018508584476
-        ],
-        "type": "Point"
-      },
-      "properties": {
-        "name": "HB4"
-      },
-      "type": "Feature"
+        "type": "Point",
+        "coordinates": [101.64425902787414, 2.9258018508584476]
+      }
     },
     {
+      "type": "Feature",
+      "properties": { "name": "HB3" },
       "geometry": {
-        "coordinates": [
-          101.64387098264679,
-          2.9251774816803597
-        ],
-        "type": "Point"
-      },
-      "properties": {
-        "name": "HB3"
-      },
-      "type": "Feature"
+        "type": "Point",
+        "coordinates": [101.64387098264679, 2.9251774816803597]
+      }
     },
     {
+      "type": "Feature",
+      "properties": { "name": "HB2" },
       "geometry": {
-        "coordinates": [
-          101.64489499088562,
-          2.9251703050211293
-        ],
-        "type": "Point"
-      },
-      "properties": {
-        "name": "HB2"
-      },
-      "type": "Feature"
+        "type": "Point",
+        "coordinates": [101.64489499088562, 2.9251703050211293]
+      }
     },
     {
+      "type": "Feature",
+      "properties": { "name": "HB1" },
       "geometry": {
-        "coordinates": [
-          101.64555610497666,
-          2.9249155335883295
-        ],
-        "type": "Point"
-      },
-      "properties": {
-        "name": "HB1"
-      },
-      "type": "Feature"
+        "type": "Point",
+        "coordinates": [101.64555610497666, 2.9249155335883295]
+      }
     },
     {
+      "type": "Feature",
+      "properties": { "name": "Surau Al Hidayah MMU" },
       "geometry": {
-        "coordinates": [
-          101.64301274138217,
-          2.924436356931546
-        ],
-        "type": "Point"
-      },
-      "properties": {
-        "name": "Surau Al Hidayah MMU"
-      },
-      "type": "Feature"
+        "type": "Point",
+        "coordinates": [101.64301274138217, 2.924436356931546]
+      }
     },
     {
+      "type": "Feature",
+      "properties": { "name": "Admission and International Office" },
       "geometry": {
-        "coordinates": [
-          101.64200418631222,
-          2.929891224595502
-        ],
-        "type": "Point"
-      },
-      "properties": {
-        "name": "Admission and International Office"
-      },
-      "type": "Feature"
+        "type": "Point",
+        "coordinates": [ 101.64200418631222,2.929891224595502]
+      }
     },
     {
+      "type": "Feature",
+      "properties": { "name": "Institute for Postgraduate Studies" },
       "geometry": {
-        "coordinates": [
-          101.64289180014389,
-          2.928809474558701
-        ],
-        "type": "Point"
-      },
-      "properties": {
-        "name": "Institute for Postgraduate Studies"
-      },
-      "type": "Feature"
+        "type": "Point",
+        "coordinates": [101.64289180014389, 2.928809474558701]
+      }
     },
     {
+      "type": "Feature",
+      "properties": { "name": "Multipurpose Hall (MPH)" },
       "geometry": {
-        "coordinates": [
-          101.64232157865686,
-          2.92817347947485
-        ],
-        "type": "Point"
-      },
-      "properties": {
-        "name": "Multipurpose Hall (MPH)"
-      },
-      "type": "Feature"
+        "type": "Point",
+        "coordinates": [101.64232157865686, 2.92817347947485]
+      }
     }
-  ],
-  "type": "FeatureCollection"
+  ]
 }
+  
+
+  
+    
+  
+  
+  

@@ -50,6 +50,13 @@ fetch("static/campus_places.geojson")
     let coords = feature.geometry.coordinates.slice().reverse();
     campusPlaces[name] = coords;
     
+    //store aliases if they exist//
+  if (feature.properties.aliases) {
+    feature.properties.aliases.forEach(alias => {
+      campusPlaces[alias] = coords;
+    });
+  }
+
   });
   initCampusSearch();
 });
@@ -523,7 +530,7 @@ function updateUserPosition(lat, lng, heading, snap = true) {
       (err, routes) => {
         if (!err) {
           if (routeLine) map.removeLayer(routeLine);
-          routeLine = L.polyline(routes[0].coordinates, { color: 'blue', weight: 5 }).addTo(map);
+          routeLine = L.polyline(routes[0].coordinates, { color: '#00BFFF', weight: 5 }).addTo(map);
         }
       }
     );
@@ -543,11 +550,11 @@ function stopNavigation() {
 // ============================
 // Recenter Button
 // ============================
-const recenterBtn = L.control({ position: "topleft" });
+const recenterBtn = L.control({ position: "bottomleft" });
 
 recenterBtn.onAdd = function(map) {
   let btn = L.DomUtil.create("button", "recenter-button");
-  btn.innerHTML = "📍";
+  btn.innerHTML = "📍 Recenter Me";
 
   btn.onclick = () => {
     navigationMode = true; // turn auto-follow back on
@@ -961,10 +968,10 @@ function viewFacultyPrograms() {
 // Dropdown click handlers
 document.addEventListener('DOMContentLoaded', function() {
     const facultyLinks = [
-        { selector: '[data-destination="Faculty of Computing and Informatics"]', name: 'Faculty of Computing and Informatics' },
-        { selector: '[data-destination="Faculty of Creative Multimedia"]', name: 'Faculty of Creative Multimedia' },
-        { selector: '[data-destination="Faculty of Engineering"]', name: 'Faculty of Engineering' },
-        { selector: '[data-destination="Faculty of Management"]', name: 'Faculty of Management' }
+        { selector: '[data-destination="Faculty of Computing and Informatics (FCI)"]', name: 'Faculty of Computing and Informatics (FCI)' },
+        { selector: '[data-destination="Faculty of Creative Multimedia (FCM)"]', name: 'Faculty of Creative Multimedia (FCM)' },
+        { selector: '[data-destination="Faculty of Artificial Intelligence & Engineering (FAIE)"]', name: 'Faculty of Artificial Intelligence & Engineering (FAIE)' },
+        { selector: '[data-destination="Faculty of Management (FOM)"]', name: 'Faculty of Management (FOM)' }
     ];
 
     facultyLinks.forEach(faculty => {

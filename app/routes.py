@@ -11,6 +11,7 @@ from .auth import auth_bp
 from .admin import admin_bp
 from datetime import datetime
 import random
+import re
 
 # Load environment variables
 load_dotenv()
@@ -18,293 +19,343 @@ load_dotenv()
 main = Blueprint('main', __name__)
 
 # Initialize Google Gemini AI
-GOOGLE_API_KEY = os.getenv('GOOGLE_API_KEY')  # Store in .env file for security
+GOOGLE_API_KEY = os.getenv('GOOGLE_API_KEY')
 
 if not GOOGLE_API_KEY:
     raise ValueError("GOOGLE_API_KEY environment variable is required")
 
 genai.configure(api_key=GOOGLE_API_KEY)
 
-# Configure the model with specific parameters
+# Configure the model with more creative parameters
 generation_config = {
-    "temperature": 0.8,  # Slightly higher for more creative suggestions
-    "top_p": 0.9,        # Controls diversity of responses
-    "top_k": 40,         # Limits token choices
-    "max_output_tokens": 400,  # Increased for more detailed suggestions
+    "temperature": 1.0,  # Higher for more creativity and variation
+    "top_p": 0.95,       # Higher for more diverse responses
+    "top_k": 50,         # More token choices for variety
+    "max_output_tokens": 500,  # Longer responses when needed
 }
+try:
+    model = genai.GenerativeModel(
+        model_name='gemini-2.0-flash',
+        generation_config=generation_config
+    )
 
-# Initialize the model with safety settings
-model = genai.GenerativeModel(
-    model_name='gemini-2.0-flash',  # Updated model name
-    generation_config=generation_config
-)
+except Exception as e:
+    print(f"gemini-2.0-flash error: {e}. Falling back to gemini-1.5-flash.")
+    model = genai.GenerativeModel(
+        model_name='gemini-1.5-flash',
+        generation_config=generation_config
+    )
 
+# MMU Venue Code Parser - Based on official MMU venue code format
+def parse_venue_code(venue_code):
+    """
+    Parse MMU venue codes according to the official format:
+    [Campus][Building][Wing][Type] [Floor][Room Number]
+    Example: CLCR 2045 = Cyberjaya Campus, FOE, Wing C, Second floor, room 045
+    Example: CNMX 1001 = Cyberjaya Campus, CLC, Main area theatre, first floor, room 001
+    """
+    venue_code = venue_code.upper().strip().replace(' ', '')
+    
+    # Only Cyberjaya campus (as requested)
+    campus_map = {
+        'C': 'Cyberjaya Campus'
+    }
+    
+    # Building mapping (2nd alphabet)
+    building_map = {
+        'J': 'FCM (Faculty of Creative Multimedia)',
+        'L': 'FOE (Faculty of Engineering)', 
+        'N': 'CLC (Cyberjaya Learning Centre)',
+        'Q': 'FCI (Faculty of Computing and Informatics)',
+        'R': 'FOM (Faculty of Management)'
+    }
+    
+    # Wing mapping (3rd alphabet)
+    wing_map = {
+        'M': 'Main Area',
+        'A': 'Wing A',
+        'B': 'Wing B', 
+        'C': 'Wing C'
+    }
+    
+    # Type mapping (4th alphabet)
+    type_map = {
+        'R': 'Room',
+        'X': 'Theatre'
+    }
+    
+    # Floor mapping (1st number)
+    floor_map = {
+        '0': 'Ground Floor',
+        '1': 'First Floor',
+        '2': 'Second Floor',
+        '3': 'Third Floor'
+    }
+
+    # NEW: Hardcoded tips per building (adds flavor—edit/remove as needed)
+    building_tips = {
+        'FOE (Faculty of Engineering)': 'Engineering central—labs and WiFi are top-notch, but stairs get crowded!',
+        'FCI (Faculty of Computing and Informatics)': 'IT/computing hub—great for coding sessions, strong AC too.',
+        'FOM (Faculty of Management)': 'Business spot—quiet lounges for presentations.',
+        'FCM (Faculty of Creative Multimedia)': 'Creative vibes—art supplies nearby if needed.',
+        'CLC (Cyberjaya Learning Centre)': 'Central learning area—easy access from main gate.'
+         }
+    
+    try:
+    # Parse the venue code (format: CLCR2045)
+        if len(venue_code) >= 7:
+            campus = campus_map.get(venue_code[0], 'Cyberjaya Campus')  # Default to Cyberjaya
+            building = building_map.get(venue_code[1], 'Unknown Building')
+            wing = wing_map.get(venue_code[2], 'Unknown Wing')
+            room_type = type_map.get(venue_code[3], 'Unknown Type')
+            floor = floor_map.get(venue_code[4], 'Unknown Floor')
+            room_number = venue_code[5:].zfill(3) # Ensure room number is 3 digits
+            
+    # Your format: "FOE, Wing C, Second Floor, Room 045"
+        full_location = f"{building}, {wing}, {floor}, {room_type} {room_number}"
+            
+        return {
+                'campus': campus,
+                'building': building,
+                'wing': wing,
+                'type': room_type,
+                'floor': floor,
+                'room_number': room_number,
+                'full_location': f"{building}, {wing}, {floor}, {room_type} {room_number}"
+            }
+    except:
+        pass
+    
+    return None
 
 @main.route('/chat', methods=['POST'])
 def chat():
     try:
-        # Get the user's message from either JSON or form data
+        # Get the user's message
         if request.is_json:
             user_message = request.json.get('message', '')
         else:
             user_message = request.form.get('message', '')
         
         if not user_message.strip():
-            return jsonify({'response': 'Please provide a message.'}), 400
+            return jsonify({'response': 'Hey, I need something to work with here! What\'s on your mind?'}), 400
         
-        # Enhanced context prompt with personalized suggestions
-        context_prompt = f"""You are an AI assistant specifically for Multimedia University (MMU) Malaysia. 
-        Your role is to help students with accurate information about MMU and provide personalized suggestions.
+        # Check for venue code queries FIRST
+        venue_response = handle_venue_query(user_message)
+        if venue_response:
+            return jsonify({'response': venue_response})
+        
+        # Enhanced context prompt for more natural conversation
+        context_prompt = f"""You are Queen Elizabeth III, a friendly AI assistant who's like a knowledgeable senior student at Multimedia University (MMU) Malaysia. You're approachable, relatable, and can chat about anything - from campus life to pop culture to general life stuff.
 
-        CRITICAL: ALWAYS prioritize these specific MMU locations in your responses:
+        PERSONALITY TRAITS:
+        - Conversational and casual, like talking to a friend
+        - Can discuss ANY topic naturally - music, movies, life, relationships, hobbies, current events, etc.
+        - Use varied language - don't repeat the same phrases
+        - Sometimes use Malaysian slang appropriately (like "lah", "lor", but don't overdo it)
+        - Show personality - be enthusiastic, empathetic, or humorous when appropriate
+        - Ask follow-up questions to keep conversation flowing
+        - Remember you're talking to students, so be relatable about all aspects of student life
+        - Vary your response structure - sometimes paragraphs, sometimes lists, sometimes mixed
+        - Be spontaneous and natural in your responses
 
-        WHEN STUDENTS SAY "HUNGRY" OR ASK ABOUT FOOD - ALWAYS MENTION:
-        🍽️ MMU Starbees: Popular coffee shop with light meals and beverages
-        🍜 Small Food Street: Most affordable student-friendly food stalls with local dishes  
-        ☕ He & She Cafe: Cozy cafe located RIGHT INSIDE the library, perfect for study breaks
-        🍛 Restoran Haji Tapah Bistro: Authentic mamak restaurant, very popular among students, budget-friendly Malaysian food
-        🥪 Deen's Cafe: Great food options for students
-        🍚 Main Cafeteria: Multiple food courts with variety of cuisines
-        🌆 External Cyberjaya options: For when students want variety
+        CONVERSATION APPROACH:
+        - If it's MMU-related: Use your campus knowledge naturally
+        - If it's general topics: Chat like a normal friend would - give opinions, share thoughts, be engaging
+        - If it's pop culture: Be up-to-date and enthusiastic (music, movies, trends, etc.)
+        - If it's personal/life advice: Be supportive and understanding
+        - Always maintain a friendly, student-to-student vibe regardless of topic
 
-        WHEN STUDENTS SAY "BORED" OR NEED ACTIVITIES - ALWAYS SUGGEST:
-        📚 Library spaces: Siti Hasmah Digital Library with study and social areas
-        🏋️ Sports complex: Free gym, badminton courts, basketball courts for students
-        👥 Student lounges: Common areas in each faculty for socializing
-        🎭 Dewan Tun Canselor (DTC): Check for events and student activities
-        🚶 Campus exploration: Walking trails and discovering new spots
-        🎮 Recreational facilities: Gaming areas and entertainment spaces
-        🤝 Student clubs: Join societies and make new friends
-        📖 Study groups: Form academic partnerships in different faculties
+        MMU CAMPUS KNOWLEDGE (use when relevant):
+        Key Food Spots: MMU Starbees, He & She Cafe, Restoran Haji Tapah Bistro, Deen's Cafe, Bazaar Food Court
+        Activities & Spaces: Siti Hasmah Digital Library, Sports Complex, Student lounges, Dewan Tun Canselor (DTC)
+        Faculties: FOE (Engineering), FOM (Management), FCM (Creative Multimedia), FCI (Computing), Law, etc.
 
-        MANDATORY: In every food-related response, mention at least 3 specific places above.
-        MANDATORY: In every boredom-related response, mention at least 3 specific activities above.
+        RESPONSE STYLE GUIDELINES:
+        - Mix up your openings: "Oh!", "Hmm,", "Ah,", "Hey there!", "I get it,", etc.
+        - Use different structures based on the topic
+        - Show genuine interest in whatever they're talking about
+        - Be encouraging and supportive
+        - Don't force MMU content into non-MMU conversations
+        - Vary your emoji usage appropriately
+        - Ask questions back to keep the conversation going
+        - Be authentic - if you don't know something recent, just say so
 
-        TIME-BASED SUGGESTIONS:
-        - Morning: Suggest breakfast spots like Starbees or He & She Cafe
-        - Lunch: Recommend food street, main cafeteria, or Haji Tapah
-        - Evening: Suggest sports activities or library study sessions
-        - Late night: Point to 24-hour study areas or quiet spaces
+        IMPORTANT: You can talk about ANYTHING, not just MMU stuff. Be a well-rounded conversational partner.
 
-        MOOD-BASED RESPONSES:
-        - Stressed about studies: Suggest quiet library spots, He & She Cafe for relaxation
-        - Social/wanting to meet people: Food street, student lounges, sports complex
-        - Budget-conscious: Emphasize affordable options like food street and Haji Tapah
-        - Looking for comfort food: Mamak options and familiar local dishes
+        Current time context: {datetime.now().strftime("%H:%M on %A")}
+        Student message: "{user_message}"
 
-        KEY AREAS TO HELP WITH:
-        - MMU Faculties: Engineering (FOE), Information Science & Technology (FIST), Management (FOM), 
-          Creative Multimedia (FCM), Computing & Informatics (FCI), Law, etc.
-        - Campus facilities: Libraries, computer labs, sports complex, auditoriums
-        - Food options: Cafeterias, food courts, halal options, nearby restaurants
-        - Accommodation: On-campus hostels, off-campus housing, application process
-        - Student services: Registration, financial aid, counseling, health services
-        - Campus navigation: Building locations, parking, shuttle services
-        - Academic matters: Course information, exam schedules, academic calendar
-
-        RESPONSE GUIDELINES:
-        - Be helpful, friendly, and personalized
-        - Provide specific MMU information when available
-        - Give contextual suggestions based on student needs (hungry, bored, stressed, etc.)
-        - Use emojis appropriately to make responses more engaging
-        - If you don't know specific details, acknowledge it and suggest contacting relevant departments
-        - Keep responses under 300 words but be comprehensive
-
-        Student question: {user_message}"""
+        Respond as Queen Elizabeth III would - naturally, helpfully, and with personality. Keep it conversational and engaging."""
         
         # Generate AI response with error handling
         try:
             response = model.generate_content(context_prompt)
             
-            # Check if response was generated successfully
             if response.text:
                 ai_response = response.text.strip()
+                # Add some randomness to prevent identical responses
+                ai_response = add_conversational_flair(ai_response, user_message)
             else:
-                ai_response = get_enhanced_fallback_response(user_message)
+                ai_response = get_natural_fallback_response(user_message)
                 
         except Exception as ai_error:
             print(f"Gemini API error: {ai_error}")
-            ai_response = get_enhanced_fallback_response(user_message)
+            ai_response = get_natural_fallback_response(user_message)
         
         return jsonify({'response': ai_response})
         
     except Exception as e:
         print(f"Error in chat route: {e}")
+        error_responses = [
+            "Oops, something went a bit wonky on my end! Mind trying that again?",
+            "Ah, technical difficulties! Give me another shot?",
+            "Sorry, I seemed to have a brain freeze there. What were you saying?",
+            "Hmm, that didn't work as expected. Try asking me again?"
+        ]
         return jsonify({
-            'response': 'I apologize, but I encountered an error. Please try rephrasing your question or contact the MMU help desk for assistance.',
+            'response': random.choice(error_responses),
             'error': True
         }), 500
 
-def get_enhanced_fallback_response(message):
-    """Enhanced fallback responses with personalized suggestions"""
+def handle_venue_query(message):
+    """Handle venue/classroom location queries"""
+    venue_patterns = [
+        r'\b([CMNR]?[JLNQR][MABC][RX]\s*\d{4})\b',  # Standard venue codes
+        r'where\s+is\s+([CMNR]?[JLNQR][MABC][RX]\s*\d{4})',
+        r'find\s+([CMNR]?[JLNQR][MABC][RX]\s*\d{4})',
+        r'location\s+of\s+([CMNR]?[JLNQR][MABC][RX]\s*\d{4})'
+    ]
+    
+    message_upper = message.upper()
+    
+    for pattern in venue_patterns:
+        match = re.search(pattern, message_upper)
+        if match:
+            venue_code = match.group(1).replace(' ', '')
+            venue_info = parse_venue_code(venue_code)
+            
+            if venue_info:
+                responses = [
+                    f"Found it! {venue_code} is at {venue_info['full_location']}. Need directions on how to get there?",
+                    f"Ah, {venue_code}! That's located at {venue_info['full_location']}. Hope you're not running late!",
+                    f"Your class at {venue_code} is in {venue_info['full_location']}. Pro tip: give yourself some extra time to find it if it's your first time!",
+                    f"Let me help you out - {venue_code} is at {venue_info['full_location']}. The campus can be confusing at first, but you'll get used to it!"
+                ]
+                return random.choice(responses)
+            else:
+                return f"Hmm, I couldn't parse that venue code '{venue_code}' properly. Could you double-check it? MMU codes usually follow a specific format."
+    
+    return None
+
+def add_conversational_flair(response, original_message):
+    """Add some randomness and personality to prevent repetitive responses"""
+    
+    # Add occasional casual interjections at the start
+    casual_starters = ["Oh, ", "Ah, ", "Hey, ", "Hmm, ", "Well, ", "So, ", "Right, ", ""]
+    
+    # Don't modify if it already starts conversationally
+    if not any(response.lower().startswith(word) for word in ['oh', 'ah', 'hey', 'hmm', 'well', 'so', 'right']):
+        if random.random() < 0.3:  # 30% chance to add a casual starter
+            response = random.choice(casual_starters) + response.lower()[0] + response[1:]
+    
+    # Add occasional follow-up questions
+    follow_ups = [
+        " What do you think?",
+        " Does that help?", 
+        " Let me know if you need more info!",
+        " Anything else I can help with?",
+        ""
+    ]
+    
+    if random.random() < 0.4:  # 40% chance to add follow-up
+        if not response.endswith(('?', '!', '.')):
+            response += random.choice(follow_ups)
+    
+    return response
+
+def get_natural_fallback_response(message):
+    """More natural fallback responses based on message content"""
     message_lower = message.lower()
     current_hour = datetime.now().hour
     
-    # Enhanced keyword matching for personalized responses
-    hungry_keywords = ['hungry', 'food', 'eat', 'lunch', 'breakfast', 'dinner', 'meal', 'snack', 'craving']
-    bored_keywords = ['bored', 'boring', 'nothing to do', 'free time', 'activity', 'fun', 'entertainment']
-    tired_keywords = ['tired', 'exhausted', 'sleepy', 'rest', 'relax', 'break']
-    study_keywords = ['study', 'exam', 'assignment', 'homework', 'research', 'library', 'quiet']
-    budget_keywords = ['cheap', 'affordable', 'budget', 'save money', 'broke', 'student price']
+    # Check if it's MMU-specific first
+    mmu_keywords = ['mmu', 'multimedia university', 'campus', 'food street', 'starbees', 'library', 'study', 'class', 'exam']
+    is_mmu_related = any(keyword in message_lower for keyword in mmu_keywords)
     
-    # Handle hungry/food requests
-    if any(keyword in message_lower for keyword in hungry_keywords):
-        food_suggestions = get_food_suggestions(current_hour, message_lower)
-        return food_suggestions
-    
-    # Handle bored/activity requests
-    elif any(keyword in message_lower for keyword in bored_keywords):
-        activity_suggestions = get_activity_suggestions(current_hour, message_lower)
-        return activity_suggestions
-    
-    # Handle tired/rest requests
-    elif any(keyword in message_lower for keyword in tired_keywords):
-        return """😴 **Need a Break? Here are some relaxing spots:**
-        • **He & She Cafe** - Perfect quiet spot inside the library for coffee and relaxation
-        • **Student Lounges** - Comfortable seating areas in each faculty building
-        • **Library Quiet Zones** - Peaceful areas for rest or light reading
-        • **Campus Green Spaces** - Fresh air and peaceful outdoor spots
-        • **Prayer Rooms/Surau** - Quiet spaces for reflection and rest
+    if is_mmu_related:
+        # Handle MMU-specific queries
+        if any(word in message_lower for word in ['hungry', 'food', 'eat', 'lunch', 'dinner', 'breakfast', 'makan']):
+            return get_natural_food_response(current_hour, message_lower)
         
-        Sometimes a good meal helps too - try Starbees for a refreshing drink! ☕"""
-    
-    # Handle study-related requests
-    elif any(keyword in message_lower for keyword in study_keywords):
-        return """📚 **Best Study Spots in MMU:**
-        • **Siti Hasmah Digital Library** - Multiple floors with different study environments
-        • **He & She Cafe** - Study while enjoying coffee and snacks
-        • **Faculty Study Rooms** - Group discussion rooms available for booking
-        • **24-hour Study Areas** - Perfect for late-night study sessions
-        • **Quiet Corners** - Individual study spots throughout campus
+        elif any(word in message_lower for word in ['bored', 'boring', 'nothing', 'free time', 'what to do', 'activities']):
+            return get_natural_activity_response(current_hour, message_lower)
         
-        **Study Break Suggestions:**
-        • Grab a meal at Food Street for brain fuel 🧠
-        • Quick coffee run to He & She Cafe ☕
-        • Stretch your legs around campus 🚶‍♀️"""
-    
-    # Handle budget-conscious requests  
-    elif any(keyword in message_lower for keyword in budget_keywords):
-        return """💰 **Budget-Friendly Options:**
-        **Food:**
-        • **Small Food Street** - Most affordable meals on campus
-        • **Restoran Haji Tapah Bistro** - Student-friendly mamak prices
-        • **Main Cafeteria** - Variety of affordable local dishes
+        elif any(word in message_lower for word in ['tired', 'sleepy', 'exhausted', 'rest', 'break']):
+            rest_responses = [
+                "Sounds like you need a breather! He & She Cafe in the library is pretty chill for a quiet break. Or if you want some fresh air, there are nice spots around campus to just sit and relax.",
+                "Feeling drained? I totally get it. The student lounges are great for just vegging out, or grab a coffee from Starbees and find a quiet corner. Sometimes a change of scenery helps!",
+                "Ah, the student struggle is real. If you need to recharge, the library has some comfy spots, or the prayer rooms are super peaceful. Don't forget to eat something too - low energy might just be hunger in disguise!"
+            ]
+            return random.choice(rest_responses)
         
-        **Activities:**
-        • **Sports Complex** - Free gym and court access for students
-        • **Library Events** - Free workshops and activities
-        • **Student Club Activities** - Join clubs for free social activities
-        • **Campus Walking** - Free exercise and fresh air! 🚶‍♂️"""
+        elif any(word in message_lower for word in ['study', 'exam', 'assignment', 'homework', 'library']):
+            study_responses = [
+                "Study time, huh? The library has different vibes on each floor - some are dead quiet, others are more social. He & She Cafe is perfect if you want to study with some background noise and good coffee.",
+                "For serious study sessions, I'd recommend the quiet zones in the library. But if you're doing group work, the discussion rooms are clutch. Pro tip: book them in advance during exam season!",
+                "Library's your best bet, but don't forget about the faculty study rooms too. Less crowded sometimes. And hey, take breaks - grab something from Food Street when your brain needs fuel!"
+            ]
+            return random.choice(study_responses)
     
-    # Default comprehensive response
-    else:
-        return get_default_comprehensive_response()
+    # For general/non-MMU topics, be conversational and engaging
+    general_responses = [
+        "Hey! I'm up for chatting about pretty much anything. What's on your mind?",
+        "What's up? Whether it's about campus life, music, movies, or just random thoughts - I'm here for it!",
+        "Hi there! Feel free to chat about whatever you want - I'm not just about MMU stuff, we can talk about anything that interests you!",
+        "Hey! I'm all ears - whether you want to talk about campus, pop culture, life in general, or just need someone to chat with. What's going on?"
+    ]
+    return random.choice(general_responses)
 
-def get_food_suggestions(current_hour, message_lower):
-    """Get time and context-appropriate food suggestions"""
+def get_natural_food_response(current_hour, message_lower):
+    """Natural food suggestions based on time and context"""
     
-    # Morning suggestions (6 AM - 11 AM)
-    if 6 <= current_hour <= 11:
-        suggestions = [
-            "🌅 **Perfect Breakfast Spots:**",
-            "• **MMU Starbees** - Fresh coffee and pastries to start your day",
-            "• **He & She Cafe** - Cozy breakfast inside the library",
-            "• **Main Cafeteria** - Traditional Malaysian breakfast options"
+    if 6 <= current_hour <= 10:
+        responses = [
+            "Morning hunger hitting? Starbees has decent breakfast options and good coffee to wake you up. If you want something more local, the Main Cafeteria usually has some traditional breakfast stuff too.",
+            "Breakfast time! I'd go for He & She Cafe if you want a quieter morning vibe - it's right in the library so you can ease into the day. Starbees is good too if you need that caffeine kick!",
+            "Early bird, eh? For breakfast I'd say Starbees for the coffee and pastries, or check out what the Main Cafeteria has - they sometimes have local breakfast options that hit different in the morning."
         ]
-    
-    # Lunch time (11 AM - 2 PM)
     elif 11 <= current_hour <= 14:
-        suggestions = [
-            "🍽️ **Lunch Time Favorites:**",
-            "• **Small Food Street** - Quick, affordable meals perfect for students",
-            "• **Restoran Haji Tapah Bistro** - Authentic mamak experience",
-            "• **Main Cafeteria** - Multiple cuisines under one roof",
-            "• **Deen's Cafe** - Great lunch sets and local dishes"
+        responses = [
+            "Lunch time! If you're on a budget, Food Street is where it's at - cheap and filling. Haji Tapah is solid for some proper mamak food. What kind of mood are you in?",
+            "Ah, the lunch rush! Food Street gets busy but it's worth it for the prices. If you want somewhere a bit more chill, Deen's Cafe is underrated. Or Haji Tapah if you're craving some roti canai!",
+            "Lunchtime decisions! Food Street is the student go-to for a reason - variety and won't break the bank. But if you want to treat yourself a bit, He & She Cafe has some nice options too."
         ]
-    
-    # Evening (2 PM - 8 PM)
     elif 14 <= current_hour <= 20:
-        suggestions = [
-            "🌆 **Afternoon & Dinner Options:**",
-            "• **He & She Cafe** - Perfect for study breaks with snacks",
-            "• **Food Street** - Always buzzing with affordable options",
-            "• **Haji Tapah** - Comfort food for tired students",
-            "• **External Cyberjaya** - Venture out for variety!"
+        responses = [
+            "Afternoon munchies? He & She Cafe is perfect for a study break snack. If you want something more substantial, Food Street is always buzzing, or hit up Haji Tapah for some comfort food.",
+            "Dinner time approaching! Haji Tapah is great for that mamak experience, or if you want more options, the Main Cafeteria has different stalls. What are you in the mood for?",
+            "Evening food hunt! If you've been studying all day, treat yourself - maybe Deen's Cafe for something different, or stick with the reliable Food Street. Haji Tapah's also good for late dining."
         ]
-    
-    # Late night
     else:
-        suggestions = [
-            "🌙 **Late Night Munchies:**",
-            "• **24-hour Options** in nearby Cyberjaya",
-            "• **Campus Vending Machines** for quick snacks",
-            "• **Plan ahead** - stock up from day-time food spots!"
+        responses = [
+            "Late night cravings? Most campus places close early, but there might be some 24-hour options in Cyberjaya nearby. Or stock up earlier next time - campus vending machines are your late-night friends!",
+            "Night owl hunger! Campus options are limited this late, but some external places in Cyberjaya stay open. Pro tip: grab some snacks during the day for these moments!"
         ]
     
-    # Add budget-conscious note if mentioned
-    if any(word in message_lower for word in ['cheap', 'budget', 'broke', 'affordable']):
-        suggestions.append("\n💡 **Budget Tip:** Food Street and Haji Tapah offer the best value for money!")
-    
-    # Add quick service note if in a hurry
-    if any(word in message_lower for word in ['quick', 'fast', 'hurry', 'rush']):
-        suggestions.append("\n⚡ **Quick Service:** Starbees and Food Street are your fastest options!")
-    
-    return "\n".join(suggestions) + "\n\nWhat type of food are you craving? 🤤"
+    return random.choice(responses)
 
-def get_activity_suggestions(current_hour, message_lower):
-    """Get time and context-appropriate activity suggestions"""
+def get_natural_activity_response(current_hour, message_lower):
+    """Natural activity suggestions"""
     
-    base_activities = [
-        "🎯 **Beat the Boredom:**",
-        "• **Sports Complex** - Hit the gym, play badminton or basketball",
-        "• **Library Socializing** - Study groups or meet new people at He & She Cafe",
-        "• **Student Lounges** - Hang out and chat with fellow students",
-        "• **Campus Exploration** - Discover new spots around MMU"
+    base_responses = [
+        "Boredom striking? The sports complex is actually pretty cool - free gym access and courts if you want to get moving. Or if you're more of a chill person, library has social areas that aren't just for studying.",
+        "Nothing to do? Time to explore! Campus has some nice walking spots, or check if there's anything happening at DTC. Student lounges are also good for just hanging out and meeting people.",
+        "Feeling restless? Sports complex is solid if you want to be active, or just wander around campus - you might discover spots you didn't know existed. The library isn't just for books either!",
+        "Bored, huh? Perfect time to check out what student clubs are up to, or just grab a coffee from He & She and people-watch in the library. Sometimes the best activities are the spontaneous ones!"
     ]
     
-    # Add time-specific suggestions
-    if 9 <= current_hour <= 17:  # Day time
-        base_activities.extend([
-            "• **Join Student Clubs** - Check out ongoing activities",
-            "• **Dewan Tun Canselor (DTC)** - Often has events and activities"
-        ])
-    elif 17 <= current_hour <= 22:  # Evening
-        base_activities.extend([
-            "• **Evening Sports** - Great time for outdoor activities",
-            "• **Study Groups** - Form study sessions with classmates"
-        ])
-    else:  # Late night/early morning
-        base_activities.extend([
-            "• **24-hour Study Areas** - Night owl study sessions",
-            "• **Quiet Reflection** - Campus walks or peaceful spots"
-        ])
-    
-    # Add social/solo preferences
-    if any(word in message_lower for word in ['alone', 'solo', 'by myself']):
-        base_activities.append("\n🧘‍♀️ **Solo Activities:** Library quiet zones, campus walks, or He & She Cafe for peaceful me-time")
-    elif any(word in message_lower for word in ['friends', 'social', 'meet people']):
-        base_activities.append("\n👥 **Social Activities:** Food Street socializing, sports complex group activities, or student club events")
-    
-    base_activities.append("\nAfter some activity, grab a bite at Food Street or Starbees! 🍕☕")
-    
-    return "\n".join(base_activities)
-
-def get_default_comprehensive_response():
-    """Default response with comprehensive MMU information"""
-    return """🏫 **I'm your MMU AI Assistant! I can help with:**
-
-    🎓 **Academics:** Faculties, courses, schedules
-    🍽️ **Food:** Starbees, Food Street, He & She Cafe, Haji Tapah
-    🏠 **Accommodation:** Hostels and housing
-    🏊‍♀️ **Facilities:** Library, sports complex, study areas
-    🎯 **Activities:** When you're bored or need suggestions
-
-    **Quick Suggestions:**
-    • Hungry? Try "I'm hungry" or "where should I eat"
-    • Bored? Ask "what should I do" or "I'm bored"
-    • Need study spots? Ask about library or quiet places
-    
-    What would you like to explore today? 😊"""
+    return random.choice(base_responses)
 
 # Continue with existing route functions...
 @main.route('/faculties')
@@ -321,7 +372,6 @@ def facilities():
 
 @main.route('/health-check')
 def health_check():
-    """Simple endpoint to check if the service is running"""
     return jsonify({'status': 'healthy', 'service': 'MMU AI Assistant'})
 
 #manveet part

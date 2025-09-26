@@ -206,7 +206,7 @@ header {
 
 /* ===== LOGIN & REGISTER FORM STYLES ===== */
 .login-bg,
-.register-bg 
+.register-bg,
 .forgot-bg { 
     flex: 1;
     display: flex;
@@ -233,6 +233,8 @@ header {
     box-shadow: 0 8px 16px rgba(0,0,0,0.2);
     width: 100%;
     max-width: 500px;
+    align-items: center;
+    justify-content: center;
 }
 
 .forgot-bg {
@@ -320,7 +322,7 @@ header {
 
 /* Links */
 .login-bg p ,
-.register-bg p
+.register-bg p,
 .forgot-bg p { 
     text-align: center;
     margin-top: 12px;
@@ -800,9 +802,9 @@ header {
 /* ==== MAP + SEARCH SIDEBAR LAYOUT ==== */
 #sidebar-overlay {
     position: absolute;
-    top: 150px;      /* distance from top of map */
+    top: 105px;      /* distance from top of map */
     right: 10px;    /* stick to right side */
-    width: 250px;
+    width: 300px;
     background: #fff;
     padding: 9px;
     border: 1px solid #ccc;
@@ -842,6 +844,16 @@ header {
     z-index: 1;              /* map is underneath controls */
   }
 
+  .recenter-button {
+    width: 55px;
+    height: 50px;
+    font-size: 12px;
+    background: rgb(237, 232, 232);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
 
 /* ===== Reset & Base ===== */
 * {
