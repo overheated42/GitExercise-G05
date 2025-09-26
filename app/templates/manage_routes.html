@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin - Manage Routes</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="routes-admin">
+    <div class="container">
+      <h2>Manage Routes / Directions</h2>
+
+      <!-- Add / Update Route Form -->
+      <form id="routeForm" class="route-form">
+        <input type="hidden" id="editId"> <!-- hidden field to track edit -->
+
+        <label for="start">Start Location</label>
+        <input type="text" id="start" name="start" placeholder="Enter starting point" required>
+
+        <label for="end">End Location</label>
+        <input type="text" id="end" name="end" placeholder="Enter destination" required>
+
+        <label for="distance">Distance (km)</label>
+        <input type="number" id="distance" name="distance" placeholder="Enter distance" required>
+
+        <label for="duration">Duration (mins)</label>
+        <input type="number" id="duration" name="duration" placeholder="Enter duration" required>
+
+        <button type="submit" class="btn btn-primary" id="submitBtn">Add Route</button>
+        <button type="button" class="btn btn-secondary" id="cancelEdit" style="display:none;">Cancel Edit</button>
+      </form>
+
+      <!-- Routes Table -->
+      <table class="route-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Start</th>
+            <th>End</th>
+            <th>Distance</th>
+            <th>Duration</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="routeTable">
+          <tr>
+            <td>1</td>
+            <td>New York</td>
+            <td>Boston</td>
+            <td>350 km</td>
+            <td>240 mins</td>
+            <td class="actions">
+              <button class="btn btn-warning">Edit</button>
+              <button class="btn btn-danger">Delete</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    const form = document.getElementById('routeForm');
+    const table = document.getElementById('routeTable');
+    const editIdField = document.getElementById('editId');
+    const submitBtn = document.getElementById('submitBtn');
+    const cancelEditBtn = document.getElementById('cancelEdit');
+    let routeId = 2; // start after sample data
+
+    // Handle Add/Update
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+      const start = document.getElementById('start').value;
+      const end = document.getElementById('end').value;
+      const distance = document.getElementById('distance').value;
+      const duration = document.getElementById('duration').value;
+
+      if (editIdField.value) {
+        // Update existing row
+        const row = document.querySelector(`tr[data-id="${editIdField.value}"]`);
+        row.children[1].textContent = start;
+        row.children[2].textContent = end;
+        row.children[3].textContent = distance + " km";
+        row.children[4].textContent = duration + " mins";
+
+        resetForm();
+      } else {
+        // Add new row
+        const newRow = document.createElement('tr');
+        newRow.setAttribute("data-id", routeId);
+        newRow.innerHTML = `
+          <td>${routeId}</td>
+          <td>${start}</td>
+          <td>${end}</td>
+          <td>${distance} km</td>
+          <td>${duration} mins</td>
+          <td class="actions">
+            <button class="btn btn-warning">Edit</button>
+            <button class="btn btn-danger">Delete</button>
+          </td>
+        `;
+        table.appendChild(newRow);
+        routeId++;
+      }
+
+      form.reset();
+    });
+
+    // Delegate Edit/Delete clicks
+    table.addEventListener('click', function(e) {
+      if (e.target.classList.contains('btn-danger')) {
+        e.target.closest('tr').remove();
+      }
+
+      if (e.target.classList.contains('btn-warning')) {
+        const row = e.target.closest('tr');
+        const cells = row.children;
+        editIdField.value = row.getAttribute("data-id") || cells[0].textContent;
+        document.getElementById('start').value = cells[1].textContent;
+        document.getElementById('end').value = cells[2].textContent;
+        document.getElementById('distance').value = parseInt(cells[3].textContent);
+        document.getElementById('duration').value = parseInt(cells[4].textContent);
+
+        submitBtn.textContent = "Update Route";
+        cancelEditBtn.style.display = "inline-block";
+      }
+    });
+
+    // Cancel Edit Mode
+    cancelEditBtn.addEventListener('click', resetForm);
+
+    function resetForm() {
+      form.reset();
+      editIdField.value = "";
+      submitBtn.textContent = "Add Route";
+      cancelEditBtn.style.display = "none";
+    }
+  </script>
+</body>
+</html>
