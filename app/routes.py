@@ -50,9 +50,10 @@ except Exception as e:
 def parse_venue_code(venue_code):
     """
     Parse MMU venue codes according to the official format:
-    [Campus][Building][Wing][Type] [Floor][Room Number]
-    Example: CLCR 2045 = Cyberjaya Campus, FOE, Wing C, Second floor, room 045
-    Example: CNMX 1001 = Cyberjaya Campus, CLC, Main area theatre, first floor, room 001
+    [Campus][Building][Wing][Type][Floor][Room Number]
+    Example: CLCR2045 = Cyberjaya Campus, FOE, Wing C, Room, Second Floor, room 045
+    Example: CNMX = Cyberjaya Campus, CLC, Main Area, Theatre (defaults: Ground Floor, room 001)
+    Example: CNMX1001 = Cyberjaya Campus, CLC, Main Area, Theatre, First Floor, room 001
     """
     venue_code = venue_code.upper().strip().replace(' ', '')
     
@@ -65,7 +66,7 @@ def parse_venue_code(venue_code):
     building_map = {
         'J': 'FCM (Faculty of Creative Multimedia)',
         'L': 'FOE (Faculty of Engineering)', 
-        'N': 'CLC (Cyberjaya Learning Centre)',
+        'N': 'CLC (Cyberjaya Learning Centre)',  # Ensures 'N' = CLC (not FCM)
         'Q': 'FCI (Faculty of Computing and Informatics)',
         'R': 'FOM (Faculty of Management)'
     }
@@ -91,42 +92,56 @@ def parse_venue_code(venue_code):
         '2': 'Second Floor',
         '3': 'Third Floor'
     }
-
-    # NEW: Hardcoded tips per building (adds flavor—edit/remove as needed)
+    
+    # Hardcoded tips per building (adds flavor—edit/remove as needed)
     building_tips = {
         'FOE (Faculty of Engineering)': 'Engineering central—labs and WiFi are top-notch, but stairs get crowded!',
         'FCI (Faculty of Computing and Informatics)': 'IT/computing hub—great for coding sessions, strong AC too.',
         'FOM (Faculty of Management)': 'Business spot—quiet lounges for presentations.',
         'FCM (Faculty of Creative Multimedia)': 'Creative vibes—art supplies nearby if needed.',
         'CLC (Cyberjaya Learning Centre)': 'Central learning area—easy access from main gate.'
-         }
+    }
     
     try:
-    # Parse the venue code (format: CLCR2045)
-        if len(venue_code) >= 7:
+        # Parse the venue code (format: CLCR2045 or partial CNMX)
+        if len(venue_code) >= 4:  # Min for partial (C + building + wing + type)
             campus = campus_map.get(venue_code[0], 'Cyberjaya Campus')  # Default to Cyberjaya
             building = building_map.get(venue_code[1], 'Unknown Building')
             wing = wing_map.get(venue_code[2], 'Unknown Wing')
             room_type = type_map.get(venue_code[3], 'Unknown Type')
-            floor = floor_map.get(venue_code[4], 'Unknown Floor')
-            room_number = venue_code[5:].zfill(3) # Ensure room number is 3 digits
             
-    # Your format: "FOE, Wing C, Second Floor, Room 045"
-        full_location = f"{building}, {wing}, {floor}, {room_type} {room_number}"
+            # Handle floor/room: Full code vs. partial
+            if len(venue_code) >= 7:
+                floor_char = venue_code[4]
+                room_raw = venue_code[5:]
+            else:
+                floor_char = '0'  # Default for partial: Ground Floor
+                room_raw = '001'  # Default room number
             
-        return {
+            floor = floor_map.get(floor_char, 'Unknown Floor')
+            room_number = str(room_raw).zfill(3)  # Pad to 3 digits (e.g., "045")
+            
+            # FIXED: full_location and tip now inside if (vars are defined)
+            full_location = f"{building}, {wing}, {floor}, {room_type} {room_number}"
+            tip = building_tips.get(building, '')  # Get tip for this building
+            
+            return {
                 'campus': campus,
                 'building': building,
                 'wing': wing,
                 'type': room_type,
                 'floor': floor,
                 'room_number': room_number,
-                'full_location': f"{building}, {wing}, {floor}, {room_type} {room_number}"
+                'full_location': full_location,
+                'tip': tip  # NEW: Include tip for use in responses
             }
-    except:
-        pass
-    
-    return None
+        else:
+            print(f"Venue code too short: {venue_code} (needs at least 4 chars)")
+            return None
+    except Exception as e:
+        print(f"Parsing error for {venue_code}: {e}")
+        return None
+
 
 @main.route('/chat', methods=['POST'])
 def chat():
@@ -221,10 +236,11 @@ def chat():
 def handle_venue_query(message):
     """Handle venue/classroom location queries"""
     venue_patterns = [
-        r'\b([CMNR]?[JLNQR][MABC][RX]\s*\d{4})\b',  # Standard venue codes
-        r'where\s+is\s+([CMNR]?[JLNQR][MABC][RX]\s*\d{4})',
-        r'find\s+([CMNR]?[JLNQR][MABC][RX]\s*\d{4})',
-        r'location\s+of\s+([CMNR]?[JLNQR][MABC][RX]\s*\d{4})'
+        r'\b([C][JLNQR][MABC][RX]?\s*\d{0,4})\b',  # Partial/full: 0-4 digits (Cyberjaya focus)
+        r'where\s+(?:is|are)?\s+([C][JLNQR][MABC][RX]?\s*\d{0,4})',
+        r'find\s+([C][JLNQR][MABC][RX]?\s*\d{0,4})',
+        r'location\s+(?:of|for)?\s+([C][JLNQR][MABC][RX]?\s*\d{0,4})',
+        r'class\s+([C][JLNQR][MABC][RX]?\s*\d{0,4})'  # "class CNMX"
     ]
     
     message_upper = message.upper()
@@ -235,14 +251,25 @@ def handle_venue_query(message):
             venue_code = match.group(1).replace(' ', '')
             venue_info = parse_venue_code(venue_code)
             
+            # FIXED: Check venue_info immediately after parsing, within the same scope
             if venue_info:
-                responses = [
-                    f"Found it! {venue_code} is at {venue_info['full_location']}. Need directions on how to get there?",
-                    f"Ah, {venue_code}! That's located at {venue_info['full_location']}. Hope you're not running late!",
-                    f"Your class at {venue_code} is in {venue_info['full_location']}. Pro tip: give yourself some extra time to find it if it's your first time!",
-                    f"Let me help you out - {venue_code} is at {venue_info['full_location']}. The campus can be confusing at first, but you'll get used to it!"
+                # NEW: Clear breakdown format
+                breakdown = f"The class {venue_code} is in {venue_info['full_location']}."
+
+                # Add tip if available
+                if venue_info['tip']:
+                    breakdown += f" {venue_info['tip']}"
+                    
+                # Randomized extras (variety)
+                extras = [
+                    " Need directions from the main gate or library?",
+                    " (Partial code? Add floor/room for exact, e.g., CNMX1001.) Hope you're not late!",
+                    " First time? Campus can be tricky—allow extra time!",
+                    " Pro tip: Check the MMU app for maps too."
                 ]
-                return random.choice(responses)
+                full_response = breakdown + random.choice(extras)
+
+                return full_response
             else:
                 return f"Hmm, I couldn't parse that venue code '{venue_code}' properly. Could you double-check it? MMU codes usually follow a specific format."
     
