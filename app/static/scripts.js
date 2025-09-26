@@ -768,8 +768,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
 // Faculty data object
 const facultyData = {
-    'Faculty of Computing and Informatics': {
-        title: 'Faculty of Computing and Informatics',
+    'Faculty of Computing and Informatics (FCI)': {
+        title: 'Faculty of Computing and Informatics (FCI)',
         subtitle: 'Shaping the Future of Technology',
         about: 'The Faculty of Computing and Informatics (FCI) at Multimedia University is a leading institution in technology education...',
         programs: [
@@ -796,8 +796,8 @@ const facultyData = {
         mapDestination: 'Faculty of Computing and Informatics'
     },
     
-    'Faculty of Creative Multimedia': {
-        title: 'Faculty of Creative Multimedia',
+    'Faculty of Creative Multimedia (FCM)': {
+        title: 'Faculty of Creative Multimedia (FCM)',
         subtitle: 'Where Creativity Meets Technology',
         about: 'The Faculty of Creative Multimedia (FCM) at Multimedia University combines artistic creativity with cutting-edge technology...',
         programs: [
@@ -824,10 +824,10 @@ const facultyData = {
         mapDestination: 'Faculty of Creative Multimedia'
     },
     
-    'Faculty of Engineering': {
-        title: 'Faculty of Engineering',
+    'Faculty of Artificial Intelligence & Engineering (FAIE)': {
+        title: 'Faculty of Artificial Intelligence & Engineering (FAIE)',
         subtitle: 'Building Tomorrow\'s Infrastructure',
-        about: 'The Faculty of Engineering (FOE) at Multimedia University develops skilled engineers for complex technological challenges...',
+        about: 'The Faculty of Artificial Intelligence & Engineering (FAIE) at Multimedia University develops skilled engineers for complex technological challenges...',
         programs: [
             { icon: '⚡', name: 'Electrical Engineering', desc: 'Power systems, electronics, and electrical infrastructure design.' },
             { icon: '🔧', name: 'Mechanical Engineering', desc: 'Manufacturing, robotics, and mechanical system design.' },
@@ -849,11 +849,11 @@ const facultyData = {
             email: 'foe@mmu.edu.my',
             phone: '+603-8312-5200'
         },
-        mapDestination: 'Faculty of Engineering'
+        mapDestination: 'Faculty of Artificial Intelligence & Engineering (FAIE)'
     },
     
-    'Faculty of Management': {
-        title: 'Faculty of Management',
+    'Faculty of Management (FOM)': {
+        title: 'Faculty of Management (FOM)',
         subtitle: 'Leading Business Innovation',
         about: 'The Faculty of Management (FOM) at Multimedia University prepares future business leaders and entrepreneurs...',
         programs: [
