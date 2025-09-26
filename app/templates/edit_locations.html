@@ -21,7 +21,7 @@
 
     <!-- Header -->
     <div class="admin-header">
-        Welcome, Admin | Site: MMU Lost in MMU?
+        Map | Site: MMU Lost in MMU?
     </div>
 
     <!-- Main content wrapper -->
@@ -48,6 +48,14 @@
         // Load locations from Flask
         let geojsonData = {{ locations|tojson }};
         let markers = L.layerGroup().addTo(map);
+
+        var bounds = [
+        [2.933524650336691, 101.63872492066997],
+        [2.92263838437214, 101.64649259787942]
+        ];
+        map.setMaxBounds(bounds);
+        map.setMinZoom(16);
+        map.setMaxZoom(19);
 
         function renderMarkers() {
             markers.clearLayers();
