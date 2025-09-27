@@ -237,10 +237,11 @@ def analytics():
     # -------------------
     pageviews_today = (
         db.session.query(PageView.page, func.count(PageView.id).label("views"))
-        .filter(PageView.timestamp >= start, PageView.timestamp <= end)
+            .filter(PageView.view_date == today)
         .group_by(PageView.page)
         .all()
     )
+
 
     page_labels = [p[0] for p in pageviews_today]
     page_counts = [p[1] for p in pageviews_today]
@@ -254,8 +255,8 @@ def analytics():
         most_visited=most_visited,
         active_users=active_users,
         pageviews_today=pageviews_today,
-        page_labels=page_labels,       # ✅ new
-        page_counts=page_counts,       # ✅ new
+        page_labels=page_labels,       
+        page_counts=page_counts,      
         today=today
     )
 
@@ -300,3 +301,27 @@ def edit_locations():
         geojson_data = {"type": "FeatureCollection", "features": []}
 
     return render_template("edit_locations.html", locations=geojson_data)
+
+@admin_bp.route("/import_locations", methods=["POST"])
+@admin_required
+def import_locations():
+    with open(GEOJSON_PATH, "r", encoding="utf-8") as f:
+        data = json.load(f)
+
+    count = 0
+    for feature in data.get("features", []):
+        name = feature["properties"].get("name")
+        category = feature["properties"].get("category", "Other")
+        coords = feature.get("geometry", {}).get("coordinates", None)
+
+        if not name or not coords:
+            continue
+
+        longitude, latitude = coords
+        if not Location.query.filter_by(name=name).first():
+            db.session.add(Location(name=name, category=category, latitude=latitude, longitude=longitude))
+            count += 1
+
+    db.session.commit()
+    flash(f"Imported {count} new locations from GeoJSON!", "success")
+    return redirect(url_for("admin.edit_locations"))

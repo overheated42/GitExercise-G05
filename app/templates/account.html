@@ -39,6 +39,13 @@
     </header>
     <main class="account-bg">
     <h2>Account Details</h2>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <p style="color: red;">{{ message }}</p>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
     <form method="POST" class="account-form" enctype="multipart/form-data">
         <label>Name:</label>
         <input type="text" name="name" value="{{ user.name }}" placeholder="Name" required>
@@ -50,17 +57,10 @@
         <input type="email" name="email" value="{{ user.email }}" placeholder="Email" required>
         <button type="submit">Update Account</button>
 
-        <label>Current Password:</label>
-        <input type="password" name="current_password" required>
+        <p>Wish to change your password?<a href="{{ url_for('auth.change_password') }}" class="change_password-link"> Change here</a></p>
 
-        <label>New Password:</label>
-        <input type="password" name="new_password" required>
-
-        <label>Confirm New Password:</label>
-        <input type="password" name="confirm_password" required>
-
-        <button type="submit">Update Password</button>
     </form>
+
     <div class="delete-account-container">
         <h3>Delete Account</h3>
         <p>Warning: This action cannot be undone.</p>
