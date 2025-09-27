@@ -1,6 +1,6 @@
 # GitExercise-G05
 
-A Flask web application project with analytics, user & location logging,map, routes to certain locations, AI chatbot and admin dashboard. features.
+A Flask web application project with analytics, user & location logging, map, routes to certain locations, AI chatbot and admin dashboard. features.
 
 ---
 

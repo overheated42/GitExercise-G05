@@ -206,15 +206,15 @@ header {
 
 /* ===== LOGIN & REGISTER FORM STYLES ===== */
 .login-bg,
-.register-bg,
+.register-bg ,
 .forgot-bg { 
-    flex: 1;
     display: flex;
     justify-content: center;
     align-items: center;
     padding: 40px;
-    background-image: url('images/background_page-0001.jpg');
-
+    background: url('images/background_page-0001.jpg') no-repeat center center;
+    background-size: cover;
+    min-height: 100vh; 
 }
 
 .login-form { 
@@ -239,12 +239,12 @@ header {
     justify-content: center;
 }
 
-.forgot-bg {
+.forgot-form {
     display: flex;               
     padding: 30px 25px;
     flex-direction: column;
+    background: #fff;
     align-items: center;        
-    background: #fff url('images/background_page-0001.jpg') no-repeat center center;
     background-size: cover;   
     max-width: 400px;
     margin: 20px auto;              
@@ -839,7 +839,7 @@ header {
   
   /* Map sits next to sidebar */
   #map {
-    height: 500px;
+    min-height: 80vh;
     width: 100%;
     border: 1px solid #ccc;
     border-radius: 6px;
