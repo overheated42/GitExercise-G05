@@ -9,6 +9,7 @@ from itsdangerous import URLSafeTimedSerializer
 from dotenv import load_dotenv
 from flask_dance.contrib.google import make_google_blueprint
 
+
 # Load environment variables
 load_dotenv()
 
@@ -113,5 +114,28 @@ def create_app():
     # -------------------
     with app.app_context():
         db.create_all()
+        
+        from .models import User
+        from werkzeug.security import generate_password_hash
+
+        existing_admin = User.query.filter_by(username="admin").first()
+        if existing_admin:
+            existing_admin.name = "Administrator"
+            existing_admin.email = "admin@example.com"
+            existing_admin.password = generate_password_hash("admin123")
+            existing_admin.role = "admin"
+            db.session.commit()
+            print("✅ Admin user overwritten")
+        else:
+            default_admin = User(
+                name="Administrator",
+                username="admin",
+                email="admin@example.com",
+                password=generate_password_hash("admin123"),
+                role="admin"
+            )
+            db.session.add(default_admin)
+            db.session.commit()
+            print("✅ Admin user created")
 
     return app
