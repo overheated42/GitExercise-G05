@@ -298,11 +298,11 @@ header {
 /* ===== RESPONSIVE DESIGN ===== */
 @media (max-width: 768px) {
     .nav-menu {
-        width: 100%;
-        left: -100%;
+        display: none; /* hide sidebar by default */
     }
 
     .hamburger-toggle:checked ~ .nav-menu {
+        display: block; /* show when hamburger is checked */
         left: 0;
     }
 }
