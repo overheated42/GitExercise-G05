@@ -477,7 +477,8 @@ header {
 }
 
 /* ===== ACCOUNT MANAGEMENT PAGE ===== */
-.account-bg {
+.account-bg ,
+.change-bg {
     display: flex;               
     flex-direction: column;     
     justify-content: center;     
@@ -487,7 +488,8 @@ header {
 }
 
 
-.account-bg h2 {
+.account-bg h2,
+.change-bg h2 {
    text-align: center;
     justify-content: center;
     display:block;
@@ -495,7 +497,8 @@ header {
     color: #004aad;
 }
 
-.account-form {
+.account-form,
+.change-form {
     background: #fff;
     padding: 40px 50px;
     border-radius: 12px;
@@ -508,7 +511,8 @@ header {
 }
 
 /* FORM TITLE */
-.account-form h2 {
+.account-form h2,
+.change-form h2 {
     text-align: center;
     margin-bottom: 20px;
     color: #004aad;
@@ -516,7 +520,8 @@ header {
 
 /* INPUT FIELDS */
 .account-form input[type="text"],
-.account-form input[type="email"] {
+.account-form input[type="email"],
+.change-form input[type="password"] {
     width: 100%;
     padding: 10px 12px;
     font-size: 16px;
@@ -527,13 +532,15 @@ header {
 }
 
 .account-form input[type="text"]:focus,
-.account-form input[type="email"]:focus {
+.account-form input[type="email"]:focus ,
+.change-form input[type="password"]:focus {
     border-color: #004aad;
     box-shadow: 0 0 8px rgba(0, 74, 173, 0.3);
 }
 
 /* SUBMIT BUTTON */
-.account-form button {
+.account-form button,
+.change-form button {
     width: 100%;
     padding: 12px;
     background-color: #004aad;
@@ -545,7 +552,8 @@ header {
     transition: background 0.3s ease, transform 0.2s ease;
 }
 
-.account-form button:hover {
+.account-form button:hover ,
+.change-form button:hover {
     background-color: #003080;
     transform: translateY(-2px);
 }
