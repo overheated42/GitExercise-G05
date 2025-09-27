@@ -8,8 +8,7 @@ body {
 
 /* ===== HEADER ===== */
 header {
-    background: #3686c7;
-    color: #fff;
+    color: #506898;
     padding: 16px 0;
     text-align: center;
     font-size: 22px;
@@ -45,7 +44,7 @@ header {
 .hamburger-line {
     width: 25px;
     height: 3px;
-    background-color: #fff;
+    background-color: #506898;
     transition: all 0.3s ease;
     border-radius: 2px;
 }
@@ -63,62 +62,166 @@ header {
     transform: rotate(-45deg) translate(6px, -6px);
 }
 
-/* Navigation Menu */
+/* ===== COOL MODERN SIDEBAR NAVIGATION MENU ===== */
 .nav-menu {
     position: fixed;
     top: 0;
     left: -300px;
     width: 280px;
     height: 100vh;
-    background: #ffffff;
-    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+    background: linear-gradient(135deg, rgba(80, 104, 152, 0.92) 0%, rgba(66, 103, 178, 0.92) 100%); /* Semi-transparent gradient (92% opacity) for subtle background visibility */
+    backdrop-filter: blur(10px); /* Glassmorphism blur to enhance transparency and modern feel */
+    box-shadow: 4px 0 20px rgba(0, 0, 0, 0.15); /* Deeper shadow for better definition with transparency */
     z-index: 25;
-    transition: left 0.3s ease-in-out;
+    transition: left 0.3s ease-in-out, box-shadow 0.3s ease; /* Smooth slide and shadow transition */
     padding-top: 80px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; /* Modern font stack for consistency */
+    overflow-y: auto; /* Scrollable if menu is long */
 }
 
 /* Show Menu when Hamburger is Checked */
 .hamburger-toggle:checked ~ .nav-menu {
     left: 0;
+    box-shadow: 6px 0 30px rgba(0, 0, 0, 0.2); /* Enhanced shadow when open for prominence */
 }
 
-/* Navigation Links */
+/* Navigation Links - Color-Focused Improvements */
 .nav-menu a {
     display: block;
-    color: #333;
+    color: #ffffff; /* Clean white for high contrast on transparent bg */
     text-decoration: none;
     padding: 15px 25px;
     font-weight: 500;
     font-size: 16px;
-    border-bottom: 1px solid #f0eaea;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1); /* Subtle transparent border */
     transition: all 0.25s ease-in-out;
+    position: relative; /* For potential icons or effects */
 }
 
 .nav-menu a:hover {
-    background: #f8f2f2;
-    color: #0078ff;
+    background: rgba(255, 255, 255, 0.15); /* Transparent white overlay for hover depth */
+    color: #4a9eff; /* Bright blue hover color matching site theme */
     padding-left: 35px;
+    transform: translateX(5px); /* Subtle slide-right for interactivity */
 }
 
-/* Submenu Styling */
+/* Active Link (Optional - Add class 'active' to current page link in HTML) */
+.nav-menu a.active {
+    color: #ffffff;
+    background: linear-gradient(90deg, rgba(74, 158, 255, 0.3) 0%, transparent 100%); /* Gradient accent for active state */
+    border-left: 4px solid #4a9eff; /* Colored left border for emphasis */
+}
+
+/* Submenu Styling - Color Adjustments */
 .submenu {
-    background: rgba(0, 0, 0, 0.2);
-    border-left: 3px solid #00d4ff;
+    background: rgba(0, 0, 0, 0.15); /* More transparent dark overlay for hierarchy */
+    border-left: 3px solid #00d4ff; /* Kept cyan accent but can change to #4a9eff for consistency */
     margin-top: 10px;
+    border-radius: 0 0 8px 8px; /* Subtle rounding for modern touch */
 }
 
 .submenu a {
     padding-left: 40px;
     font-size: 14px;
-    color: rgba(10, 4, 4, 0.9);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    color: rgba(255, 255, 255, 0.85); /* Lighter, more visible on transparent bg */
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05); /* Faint transparent border */
+    transition: all 0.25s ease-in-out;
 }
 
 .submenu a:hover {
     padding-left: 50px;
-    color: #00d4ff;
-    background: rgba(0, 212, 255, 0.1);
+    color: #00d4ff; /* Vibrant cyan hover to match original but pop against blues */
+    background: rgba(0, 212, 255, 0.15); /* Slightly more transparent cyan tint */
+    transform: translateX(5px); /* Consistent slide effect */
 }
+
+/* Overlay for Menu (Optional - To dim background when menu is open) */
+.menu-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.4); /* Semi-transparent black overlay */
+    z-index: 20; /* Below menu but above content */
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.hamburger-toggle:checked ~ .menu-overlay {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Animations for Cool Factor */
+@keyframes slideInMenu {
+    from {
+        left: -300px;
+        opacity: 0;
+    }
+    to {
+        left: 0;
+        opacity: 1;
+    }
+}
+
+.hamburger-toggle:checked ~ .nav-menu {
+    animation: slideInMenu 0.3s ease-out; /* Smooth slide-in animation */
+}
+
+/* Responsive Adjustments (Already Mobile-Focused, but Tweaked) */
+@media (max-width: 768px) {
+    .nav-menu {
+        width: 260px; /* Slightly narrower on small screens */
+        left: -260px;
+        background: linear-gradient(135deg, rgba(80, 104, 152, 0.95) 0%, rgba(66, 103, 178, 0.95) 100%); /* More opaque for mobile readability */
+        padding-top: 70px; /* Adjust if header is smaller on mobile */
+    }
+    
+    .hamburger-toggle:checked ~ .nav-menu {
+        left: 0;
+    }
+    
+    .nav-menu a,
+    .submenu a {
+        padding: 18px 20px; /* Larger touch targets on mobile */
+        font-size: 16px; /* Bump up for easier reading */
+    }
+}
+
+/* Dark Mode Support (Optional) */
+@media (prefers-color-scheme: dark) {
+    .nav-menu {
+        background: linear-gradient(135deg, rgba(60, 80, 120, 0.92) 0%, rgba(50, 70, 140, 0.92) 100%); /* Darker transparent blues */
+        box-shadow: 4px 0 20px rgba(0, 0, 0, 0.3);
+    }
+    
+    .nav-menu a {
+        color: #e6f3ff; /* Softer white for dark mode */
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    
+    .nav-menu a:hover {
+        color: #a0c4ff;
+        background: rgba(255, 255, 255, 0.1);
+    }
+    
+    .submenu {
+        background: rgba(0, 0, 0, 0.25);
+        border-left: 3px solid #00b8ff; /* Slightly muted cyan */
+    }
+    
+    .submenu a {
+        color: rgba(255, 255, 255, 0.8);
+    }
+    
+    .submenu a:hover {
+        color: #00b8ff;
+        background: rgba(0, 184, 255, 0.2);
+    }
+}
+
 
 /* ===== DROPDOWN STYLING INSIDE HAMBURGER ===== */ /*THAD*/
 .nav-menu .dropdown {
